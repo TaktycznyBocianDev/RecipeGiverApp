@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Mvc;
+using ReciveGiverApp.BL.Services;
 using ReciveGiverApp.Database.Data;
 using ReciveGiverApp.Models.Models;
 using System;
@@ -10,112 +11,32 @@ namespace RecipeGiverApp.ApiService.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class CategoryController : Controller
+    public class CategoryController : ControllerBase
     {
-        private readonly ConnectionManager _connectionManager;
+        private readonly ICategoryService _categoryService;
+        private readonly ILogger<CategoryController> _logger;
 
-        public CategoryController(ConnectionManager connectionManager)
+        public CategoryController(ICategoryService categoryService, ILogger<CategoryController> logger)
         {
-            _connectionManager = connectionManager;
+            _categoryService = categoryService;
+            _logger = logger;
         }
 
-        [HttpGet("GetCategory")]
-        public async Task<ActionResult<Category[]>> GetCategoryAsync(int? Id = null, string? Name = null)
+        [HttpGet("GetCategories")]
+        public async Task<ActionResult<List<Category>>> GetCategoriesAsync(int? Id = null, string? Name = null)
         {
             try
             {
-                using (IDbConnection connection = _connectionManager.CreateConnection())
-                {
-                    connection.Open(); // Open the connection asynchronously
-
-                    string sql = "SELECT * FROM Categories";
-                    string param = "";
-
-                    if (Name != null) { param += " AND CategoryName = @Name"; }
-                    if (Id != null) { param += " AND CategoryID = @Id"; }
-
-                    if (param.StartsWith(" AND"))
-                    {
-                        param = param.Substring(4);
-                        param = " WHERE" + param;
-                    }
-
-                    sql = sql + param;
-
-                    // Use Dapper to execute the query and get the result as a string
-                    var result = await connection.QueryAsync<Category>(sql, new { Name = Name, Id = Id });
-                    Category[] categories = result.ToArray();
-
-                    return Ok(categories);
-                }
+                var categories = await _categoryService.GetCategoriesAsync(Id, Name);
+                if (categories == null || categories.Count == 0) return NotFound("No categories found.");
+                return Ok(categories);
             }
             catch (Exception ex)
             {
-                // Log the exception or handle it as needed
-                Console.WriteLine($"An error occurred: {ex.Message}");
-                return StatusCode(500, $"Internal server error: {ex.Message}" );
+                _logger.LogError(ex, "An error occurred while getting categories");
+                return StatusCode(500, "Internal server error");
             }
         }
     }
 }
 
-
-//using Dapper;
-//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.Data.Sqlite;
-//using ReciveGiverApp.Models.Models;
-
-//namespace RecipeGiverApp.ApiService.Controllers
-//{
-//    [Route("[controller]")]
-//    [ApiController]
-//    public class CategoryController : Controller
-//    {
-//        private readonly SqliteConnection _connection;
-
-//        public CategoryController(SqliteConnection connection)
-//        {
-//            _connection = connection;
-//        }
-
-//        [HttpGet("GetCategory")]
-//        public async Task<Category[]> GetCategoryAsync(int? Id = null, string? Name = null)
-//        {
-//            try
-//            {
-//                await _connection.OpenAsync(); // Open the connection asynchronously
-
-//                string sql = "SELECT * FROM Categories";
-//                string param = "";
-
-//                if (Name != null) { param += " AND CategoryName = @Name"; }
-//                if (Id != null) { param += " AND CategoryID = @Id"; }
-
-//                if (param.StartsWith(" AND"))
-//                {
-//                    param = param.Substring(4);
-//                    param = " WHERE" + param;
-//                }
-
-//                sql = sql + param;
-
-//                // Use Dapper to execute the query and get the result as a string
-//                var result = await _connection.QueryAsync<Category>(sql, new { Name = Name, Id = Id });
-//                Category[] categories = result.ToArray();
-
-//                return categories;
-//            }
-//            catch (Exception ex)
-//            {
-//                // Log the exception or handle it as needed
-//                Console.WriteLine($"An error occurred: {ex.Message}");
-//                return null;
-//            }
-//            finally
-//            {
-//                await _connection.CloseAsync(); // Ensure the connection is closed
-//            }
-
-//        }
-//    }
-//}

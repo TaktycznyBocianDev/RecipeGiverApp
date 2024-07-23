@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using ReciveGiverApp.Database.Data;
+using ReciveGiverApp.BL.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,9 @@ builder.Services.AddProblemDetails();
 
 // Register ConnectionManager as a singleton
 builder.Services.AddSingleton<ConnectionManager>();
+
+//Add connection between ICategoryService and CategoryService
+builder.Services.AddTransient<ICategoryService, CategoryService>();
 
 var app = builder.Build();
 
