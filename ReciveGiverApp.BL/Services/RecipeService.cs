@@ -41,7 +41,7 @@ namespace ReciveGiverApp.BL.Services
                     string param = "";
 
                     if (Name != null) { param += " AND RecipeName = @Name"; }
-                    if (CategoryId != 0) { param += " AND CategoryID = @CategoryId"; }
+                    if (CategoryId != 0) { param += " AND CategoryId = @CategoryId"; }
 
                     if (param.StartsWith(" AND"))
                     {
@@ -51,7 +51,7 @@ namespace ReciveGiverApp.BL.Services
 
                     sql = sql + param;
 
-                    var result = await connection.QueryAsync<Recipe>(sql, new { Name = Name, CategoryID = CategoryId });
+                    var result = await connection.QueryAsync<Recipe>(sql, new { Name = Name, CategoryId = CategoryId });
                     var recipes = result.ToList();
 
                     Console.WriteLine(sql);
