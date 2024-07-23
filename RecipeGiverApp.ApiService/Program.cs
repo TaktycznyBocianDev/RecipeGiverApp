@@ -22,6 +22,7 @@ builder.Services.AddSingleton<ConnectionManager>();
 
 //Add connection between ICategoryService and CategoryService
 builder.Services.AddTransient<ICategoryService, CategoryService>();
+builder.Services.AddTransient<IRecipeService, RecipeService>();
 
 var app = builder.Build();
 

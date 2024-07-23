@@ -50,8 +50,9 @@ namespace ReciveGiverApp.BL.Services
                     // Use Dapper to execute the query and get the result as a string
                     var result = await connection.QueryAsync<Category>(sql, new { Name = Name, Id = Id });
                     var categories = result.ToList();
-
+                    connection.Close();
                     return categories;
+                    
                 }
             }
             catch (Exception ex)
