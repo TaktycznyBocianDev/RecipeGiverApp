@@ -7,7 +7,7 @@ namespace RecipeGiverApp.ApiService.Controllers
 
     [Route("[controller]")]
     [ApiController]
-    public class RecipeController :ControllerBase
+    public class RecipeController : ControllerBase
     {
 
         private readonly IRecipeService _recipeService;

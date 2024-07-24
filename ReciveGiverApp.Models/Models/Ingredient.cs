@@ -8,7 +8,7 @@ namespace ReciveGiverApp.Models.Models
 {
     public class Ingredient
     {
-        public int Id { get; set; }
+        public int IngredientID { get; set; }
         public string IngredientName { get; set; } = string.Empty;
         public string Quantity { get; set; } = string.Empty;
 
