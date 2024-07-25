@@ -28,7 +28,7 @@ namespace RecipeGiverApp.ApiService.Controllers
             try
             {
                 var ingredients = await _ingredientService.GetIngredientsAsync(IngredientID, IngredientName);
-                if (ingredients == null || ingredients.Count == 0) return NotFound("No categories found.");
+                if (ingredients == null || ingredients.Count == 0) return NotFound("No ingredients found.");
                 return Ok(ingredients);
             }
             catch (Exception ex)
@@ -37,6 +37,21 @@ namespace RecipeGiverApp.ApiService.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
+        [HttpPost("CreateIngredients")]
+        public async Task<ActionResult> CreateIngredientAsync(Ingredient ingredient)
+        {
+            try
+            {
+                var result = await _ingredientService.CreateIngredientAsync(ingredient);
+                if (result == 0) return NotFound("No ingredient created. Does it not exist already?");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating the ingredient");
+                return StatusCode(500, "Internal server error");
+            }
+        }
     }
 }
-

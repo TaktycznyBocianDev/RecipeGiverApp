@@ -11,6 +11,8 @@ namespace ReciveGiverApp.BL.Services
     public interface IIngredientService
     {
         public Task<List<Ingredient>> GetIngredientsAsync(int? Id = null, string? Name = null);
+        public Task<int> CreateIngredientAsync(Ingredient ingredient);
+
     }
 
     public class IngredientService : IIngredientService
@@ -61,5 +63,29 @@ namespace ReciveGiverApp.BL.Services
                 return new List<Ingredient>();
             }
         }
+
+        public async Task<int> CreateIngredientAsync(Ingredient ingredient)
+        {
+            try
+            {
+                using (IDbConnection connection = _connectionManager.CreateConnection())
+                {
+                    connection.Open();
+
+                    string sql = " INSERT INTO Ingredients (IngredientName) SELECT @IngredientName WHERE NOT EXISTS (SELECT 1 FROM Ingredients WHERE IngredientName = @IngredientName);";
+
+                    var result = await connection.ExecuteAsync(sql, new { IngredientName = ingredient.IngredientName });
+                    connection.Close();
+                    return result;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return 0;
+            }
+        }
+
     }
 }
