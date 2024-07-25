@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace RecipeGiverApp.ApiService.Controllers
 {
+
     [Route("[controller]")]
     [ApiController]
     public class IngredientController : ControllerBase
@@ -85,6 +86,5 @@ namespace RecipeGiverApp.ApiService.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
-
     }
 }
