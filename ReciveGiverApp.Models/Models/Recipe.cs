@@ -8,9 +8,9 @@ namespace ReciveGiverApp.Models.Models
 {
     public class Recipe
     {
-        public int RecipeId { get; set; }
+        public int RecipeID { get; set; }
         public string RecipeName { get; set; } = string.Empty;
-        public int CategoryId { get; set; }
+        public int CategoryID { get; set; }
         public string Instructions { get; set; } = string.Empty;
         public string FitPorada { get; set; } = string.Empty;
         public int Kilocalories { get; set; }

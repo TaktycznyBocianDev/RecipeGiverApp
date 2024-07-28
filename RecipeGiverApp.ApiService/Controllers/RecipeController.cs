@@ -35,6 +35,53 @@ namespace RecipeGiverApp.ApiService.Controllers
             }
         }
 
+        [HttpPost("CreateRecipesNoIngredients")]
+        public async Task<ActionResult> CreateRecipesNoIngredients(Recipe recipe)
+        {
+            try
+            {
+                var rowAffected = await _recipeService.CreateRecipesNoIngredientsAsync(recipe);
+                if (rowAffected == 0) return NotFound("No recipes created.");
+                return Ok(rowAffected);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating recipe");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpPut("UpdateRecipeAsync")]
+        public async Task<ActionResult> UpdateRecipeAsync(string OldName, Recipe recipeNew)
+        {
+            try
+            {
+                var rowAffected = await _recipeService.UpdateRecipeAsync(OldName, recipeNew);
+                if (rowAffected == 0) return NotFound("No recipes updated.");
+                return Ok(rowAffected);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating recipe");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpDelete("DeleteRecipesAsync")]
+        public async Task<ActionResult> DeleteRecipesAsync(string RecipeName)
+        {
+            try
+            {
+                var rowAffected = await _recipeService.DeleteRecipeAsync(RecipeName);
+                if (rowAffected == 0) return NotFound("No recipes deleted.");
+                return Ok(rowAffected);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while deleting recipe");
+                return StatusCode(500, "Internal server error");
+            }
+        }
 
     }
 }

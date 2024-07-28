@@ -15,8 +15,10 @@ namespace ReciveGiverApp.BL.Services
 {
     public interface IRecipeService
     {
-
         public Task<List<Recipe>> GetRecipesAsync(string? Name = "", int CategoryId = 0);
+        public Task<int> CreateRecipesNoIngredientsAsync(Recipe recipe);
+        public Task<int> UpdateRecipeAsync(string recipeOldName, Recipe recipeNew);
+        public Task<int> DeleteRecipeAsync(string recipeName);
     }
     public class RecipeService : IRecipeService
     {
@@ -67,5 +69,92 @@ namespace ReciveGiverApp.BL.Services
                 return new List<Recipe>();
             }
         }
+
+        public async Task<int> CreateRecipesNoIngredientsAsync(Recipe recipe)
+        {
+            try
+            {
+                using (IDbConnection connection = _connectionManager.CreateConnection())
+                {
+                    connection.Open();
+
+                    string sql = @"
+                INSERT INTO Recipes (RecipeName, CategoryID, Instructions, FitPorada, Kilocalories)
+                SELECT @RecipeName, @CategoryID, @Instructions, @FitPorada, @Kilocalories
+                WHERE NOT EXISTS (SELECT 1 FROM Recipes WHERE RecipeName = @RecipeName);";
+
+                    var result = await connection.ExecuteAsync(sql, new { RecipeName = recipe.RecipeName, CategoryID = recipe.CategoryID, Instructions = recipe.Instructions, FitPorada = recipe.FitPorada, Kilocalories = recipe.Kilocalories });
+                    connection.Close();
+                    return result;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return 0;
+            }
+        }
+
+        public async Task<int> UpdateRecipeAsync(string recipeOldName, Recipe recipeNew)
+        {
+            try
+            {
+                using (IDbConnection connection = _connectionManager.CreateConnection())
+                {
+                    connection.Open();
+
+                    string sql = @"
+                UPDATE Recipes
+                SET RecipeName = @RecipeName,
+                    CategoryID = @CategoryID,
+                    Instructions = @Instructions,
+                    FitPorada = @FitPorada,
+                    Kilocalories = @Kilocalories
+                WHERE RecipeName = @RecipeOldName;";
+
+                    var result = await connection.ExecuteAsync(sql, new
+                    {
+                        recipeNew.RecipeName,
+                        recipeNew.CategoryID,
+                        recipeNew.Instructions,
+                        recipeNew.FitPorada,
+                        recipeNew.Kilocalories,
+                        RecipeOldName = recipeOldName
+                    });
+                    connection.Close();
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return 0;
+            }
+        }
+
+
+        public async Task<int> DeleteRecipeAsync(string recipeName)
+        {
+            try
+            {
+                using (IDbConnection connection = _connectionManager.CreateConnection())
+                {
+                    connection.Open();
+
+                    string sql = "DELETE FROM Recipes WHERE recipeName = @recipeName;";
+
+                    var result = await connection.ExecuteAsync(sql, new { recipeName });
+                    connection.Close();
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return 0;
+            }
+        }
+
     }
 }
