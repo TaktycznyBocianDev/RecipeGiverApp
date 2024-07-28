@@ -1,4 +1,5 @@
-﻿using ReciveGiverApp.Models.Models;
+﻿using Microsoft.Extensions.Logging;
+using ReciveGiverApp.Models.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,13 +12,23 @@ namespace ReciveGiverApp.BL.Services
     public interface IRecipeIngredientService
     {
         public Task<List<Recipe>> GetRecipesWithIngredientsAsync(string? Name = null, Recipe? recipe = null);
-        public Task<int> CreateRecipesWithCorespondingIngredientsAsync(Ingredient ingredient);
+        public Task<int> CreateRecipesWithCorespondingIngredientsAsync(Recipe recipe, Ingredient[] ingredients);
         public Task<int> UpdateIngredientNameAsync(int ingredientId, string newName);
         public Task<int> DeleteIngredientAsync(string newName);
     }
     public class RecipeIngredientService : IRecipeIngredientService
     {
-        public Task<int> CreateRecipesWithCorespondingIngredientsAsync(Ingredient ingredient)
+        private readonly IIngredientService _ingredientService;
+        private readonly IRecipeService _recipeService;
+
+        public RecipeIngredientService(IIngredientService ingredientService, IRecipeService recipeService)
+        {
+            _ingredientService = ingredientService;
+            _recipeService = recipeService;
+        }
+
+
+        public Task<int> CreateRecipesWithCorespondingIngredientsAsync(Recipe recipe, Ingredient[] ingredients)
         {
             throw new NotImplementedException();
         }
