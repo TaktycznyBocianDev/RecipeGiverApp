@@ -10,5 +10,6 @@ namespace ReciveGiverApp.Models.Models
     {
         public int IngredientID { get; set; }
         public string IngredientName { get; set; } = string.Empty;
+        public string Quantity { get; set; } = string.Empty;
     }
 }

@@ -54,21 +54,21 @@ namespace RecipeGiverApp.ApiService.Controllers
             }
         }
 
-        //[HttpPost("CreateIngredients")]
-        //public async Task<ActionResult> CreateIngredientAsync(Ingredient ingredient)
-        //{
-        //    try
-        //    {
-        //        var result = await _ingredientService.CreateIngredientAsync(ingredient);
-        //        if (result == 0) return NotFound("No ingredient created. Does it not exist already?");
-        //        return Ok(result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "An error occurred while creating the ingredient");
-        //        return StatusCode(500, "Internal server error");
-        //    }
-        //}
+        [HttpPost("CreateRecipeWithIngredients")]
+        public async Task<ActionResult> CreateRecipeWithIngredients(Recipe recipe)
+        { 
+            try
+            {
+                var result =  await _recipeIngredientService.CreateRecipesWithCorespondingIngredientsAsync(recipe);
+                if (result == 0) return NotFound("No recipe created.");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating the recipe");
+                return StatusCode(500, "Internal server error");
+            }
+        }
 
         //[HttpPut("UpdateIngredient")]
         //public async Task<ActionResult> UpdateIngredientNameAsync(int ingredientId, string newName)
