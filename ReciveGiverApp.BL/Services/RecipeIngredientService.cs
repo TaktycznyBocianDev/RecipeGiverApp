@@ -15,8 +15,7 @@ namespace ReciveGiverApp.BL.Services
 
     public interface IRecipeIngredientService
     {
-        public Task<Recipe> GetRecipesWithIngredientsAsync(string Name);
-        public Task<List<Recipe>> GetRecipesWithIngredientsAsync();
+        public Task<List<Recipe>> GetRecipesWithIngredientsAsync(string? Name = null);
         public Task<int> CreateRecipesWithCorespondingIngredientsAsync(Recipe recipe, Ingredient[] ingredients);
         public Task<int> UpdateIngredientNameAsync(int ingredientId, string newName);
         public Task<int> DeleteIngredientAsync(string newName);
@@ -26,9 +25,9 @@ namespace ReciveGiverApp.BL.Services
         private readonly ConnectionManager _connectionManager;
         private readonly IIngredientService _ingredientService;
         private readonly IRecipeService _recipeService;
-        private readonly ILogger _logger;
+        private readonly ILogger<RecipeIngredientService> _logger;
 
-        public RecipeIngredientService(ConnectionManager connectionManager, IIngredientService ingredientService, IRecipeService recipeService, ILogger logger)
+        public RecipeIngredientService(ConnectionManager connectionManager, IIngredientService ingredientService, IRecipeService recipeService, ILogger<RecipeIngredientService> logger)
         {
             _connectionManager = connectionManager;
             _ingredientService = ingredientService;
@@ -36,7 +35,10 @@ namespace ReciveGiverApp.BL.Services
             _logger = logger;
         }
 
-        public async Task<List<Recipe>> GetRecipesWithIngredientsAsync(string Name = "")
+        /// <summary>
+        /// What will it do?
+        /// </summary>
+        public async Task<List<Recipe>> GetRecipesWithIngredientsAsync(string? Name = null)
         {
 
             try
@@ -52,20 +54,22 @@ namespace ReciveGiverApp.BL.Services
 
                     foreach (var recipe in recipes)
                     {
-                        var result = await connection.QueryAsync<RecipeIngredientDTO>(sql, new { RecipeID = recipe.RecipeID});
-                        
+                        //For each recipe, gets it's ingredients
+                        var result = await connection.QueryAsync<RecipeIngredientDTO>(sql, new { RecipeID = recipe.RecipeID});     
                         List<RecipeIngredientDTO> recipeIngredients = result.ToList();
+
                         List<Ingredient> ingredients = new List<Ingredient>();
 
                         foreach (var item in recipeIngredients)
                         {
+
                             var nextIgredient = _ingredientService.GetIngredientsAsync(item.IngredientID).GetAwaiter().GetResult();
                             if (nextIgredient == null) break;
 
                             Ingredient ing = nextIgredient[0];
                             ingredients.Add(ing);
                         }
-                        _recipeService.GetRecipesAsync();
+                        recipe.ingredients = ingredients;
                     }
 
                     connection.Close();
@@ -77,28 +81,9 @@ namespace ReciveGiverApp.BL.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
-                return 0;
+                return new List<Recipe>();
             }
-
-           
-
-            
-
-            
-
-
-            Recipe requestedRecipe = _recipeService.GetRecipesAsync(Name).GetAwaiter().GetResult()[0];
-            if (requestedRecipe != null) throw new Exception($"There is no Recipe with name {Name}");
-
-
         }
-
-        public Task<List<Recipe>> GetRecipesWithIngredientsAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-
 
         public Task<int> CreateRecipesWithCorespondingIngredientsAsync(Recipe recipe, Ingredient[] ingredients)
         {

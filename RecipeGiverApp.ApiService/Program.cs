@@ -24,6 +24,7 @@ builder.Services.AddSingleton<ConnectionManager>();
 builder.Services.AddTransient<ICategoryService, CategoryService>();
 builder.Services.AddTransient<IRecipeService, RecipeService>();
 builder.Services.AddTransient<IIngredientService, IngredientService>();
+builder.Services.AddTransient<IRecipeIngredientService, RecipeIngredientService>();
 
 var app = builder.Build();
 
