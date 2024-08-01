@@ -24,7 +24,7 @@ namespace RecipeGiverApp.ApiService.Controllers
         }
 
         [HttpGet("GetRecipeWithIngredients/{recipeName}")]
-        public async Task<ActionResult> GetRecipeWithIngredients(string recipeName)
+        public async Task<ActionResult> GetRecipeWithIngredientsAsync(string recipeName)
         {
             try
             {
@@ -69,6 +69,39 @@ namespace RecipeGiverApp.ApiService.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
+        [HttpDelete("DeleteIngredientFromRelationWithRecipeAsync/{recipeName, ingridientName}")]
+        public async Task<ActionResult> DeleteIngredientFromRecipeRelationAsync(string recipeName, string ingridientName)
+        {
+            try
+            {
+                var result = await _recipeIngredientService.DeleteIngredientFromRecipeRelationAsync(recipeName, ingridientName);
+                if (result == 0) return NotFound("No ingredient deleted. Is name valid?");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating the ingredient");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpDelete("DeleteRecipe")]
+        public async Task<ActionResult> DeleteRecipe(string recipeName)
+        {
+            try
+            {
+                var result = await _recipeIngredientService.DeleteRecipeAsync(recipeName);
+                if (result == 0) return NotFound("No recipe deleted. Is name valid?");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while removing the recipe");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
 
         //[HttpPut("UpdateIngredient")]
         //public async Task<ActionResult> UpdateIngredientNameAsync(int ingredientId, string newName)

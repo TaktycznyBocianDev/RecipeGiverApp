@@ -18,8 +18,9 @@ namespace ReciveGiverApp.BL.Services
     {
         public Task<List<Recipe>> GetRecipesWithIngredientsAsync(string? Name = null);
         public Task<int> CreateRecipesWithCorespondingIngredientsAsync(Recipe recipe);
-        public Task<int> UpdateIngredientNameAsync(int ingredientId, string newName);
-        public Task<int> DeleteIngredientAsync(string newName);
+        public Task<int> UpdateIngredientsForRecipeAsync(string recipeName, Ingredient[] ingredients);
+        public Task<int> DeleteRecipeAsync(string Name);
+        public Task<int> DeleteIngredientFromRecipeRelationAsync(string recipeName, string ingridientName);
     }
     public class RecipeIngredientService : IRecipeIngredientService
     {
@@ -102,11 +103,11 @@ namespace ReciveGiverApp.BL.Services
                 //Add every ingredient from provided recipe and get it back with proper ID - add it to list finalIngredients 
                 foreach (var ing in recipe.ingredients)
                 {
-                    var addingIngredientsResult =  await _ingredientService.CreateIngredientAsync(ing);
+                    var addingIngredientsResult = await _ingredientService.CreateIngredientAsync(ing);
                     if (addingIngredientsResult == 0) throw new Exception("Failed to create ingredients");
 
-                    var tmp= await _ingredientService.GetIngredientsAsync(null, ing.IngredientName);
-                    
+                    var tmp = await _ingredientService.GetIngredientsAsync(null, ing.IngredientName);
+
                     Ingredient ingridinetWithId = tmp[0];
                     finalIngredients.Add(ingridinetWithId);
                 }
@@ -122,7 +123,7 @@ namespace ReciveGiverApp.BL.Services
                     }
                     connection.Close();
                 }
-               
+
                 //Return how many ingredients were added
                 return howManyIngredients;
             }
@@ -133,17 +134,53 @@ namespace ReciveGiverApp.BL.Services
             }
         }
 
-
-        public Task<int> DeleteIngredientAsync(string newName)
+        public async Task<int> DeleteIngredientFromRecipeRelationAsync(string recipeName, string ingridientName)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var ing = await _ingredientService.GetIngredientsAsync(null, ingridientName);
+                if (ing == null) throw new Exception($"No ingredient like this was found.");
+
+                var recip = await _recipeService.GetRecipesAsync(recipeName);
+                if (recip == null) throw new Exception("No recipe like this was found.");
+
+                Ingredient ingredient = ing[0];
+                Recipe recipe = recip[0];
+
+                string sql = "DELETE FROM RecipeIngredients WHERE (RecipeID = @RecipeID) AND (IngredientId = @IngredientId)";
+
+                using (IDbConnection connection = _connectionManager.CreateConnection())
+                {
+                    connection.Open();
+
+                    var result = await connection.ExecuteAsync(sql, new { RecipeID = recipe.RecipeID, IngredientId = ingredient.IngredientID });
+
+                    connection.Close();
+
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return 0;
+            }
         }
 
 
 
-        public Task<int> UpdateIngredientNameAsync(int ingredientId, string newName)
+
+        public async Task<int> DeleteRecipeAsync(string Name)
         {
-            throw new NotImplementedException();
+            //As removing recipe removes any recipes connected with it.
+            return await _recipeService.DeleteRecipeAsync(Name);
+        }
+
+
+
+        public async Task<int> UpdateIngredientsForRecipeAsync(string recipeName, Ingredient[] ingredients)
+        {
+            
         }
 
 
