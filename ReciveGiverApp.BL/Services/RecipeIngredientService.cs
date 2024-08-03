@@ -6,6 +6,7 @@ using ReciveGiverApp.Models.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,9 +19,10 @@ namespace ReciveGiverApp.BL.Services
     {
         public Task<List<Recipe>> GetRecipesWithIngredientsAsync(string? Name = null);
         public Task<int> CreateRecipesWithCorespondingIngredientsAsync(Recipe recipe);
-        public Task<int> UpdateIngredientsForRecipeAsync(string recipeName, Ingredient[] ingredients);
+        public Task<int> UpdateQuantityAsync(string recipeName, string IngredientName, string quantity);
         public Task<int> DeleteRecipeAsync(string Name);
         public Task<int> DeleteIngredientFromRecipeRelationAsync(string recipeName, string ingridientName);
+
     }
     public class RecipeIngredientService : IRecipeIngredientService
     {
@@ -28,6 +30,16 @@ namespace ReciveGiverApp.BL.Services
         private readonly IIngredientService _ingredientService;
         private readonly IRecipeService _recipeService;
         private readonly ILogger<RecipeIngredientService> _logger;
+        private class Quantities
+        {
+            public int IngredientId { get; set; }
+            public string Quantity { get; set; } = string.Empty;
+            public Quantities(int ingredientId, string quantity)
+            {
+                this.IngredientId = ingredientId;
+                Quantity = quantity;
+            }
+        }
 
         public RecipeIngredientService(ConnectionManager connectionManager, IIngredientService ingredientService, IRecipeService recipeService, ILogger<RecipeIngredientService> logger)
         {
@@ -82,43 +94,40 @@ namespace ReciveGiverApp.BL.Services
                 return new List<Recipe>();
             }
         }
-
         public async Task<int> CreateRecipesWithCorespondingIngredientsAsync(Recipe recipe)
         {
             try
             {
-                //Create recipe
+                //Create recipe and get it's ID
                 int recipeCreated = await _recipeService.CreateRecipesNoIngredientsAsync(recipe);
                 if (recipeCreated == 0) throw new Exception("No recipe was created");
-
-                //Get recipe back with proper ID (it will be use soon)
-                var reGetRecipeWithId = await _recipeService.GetRecipesAsync(recipe.RecipeName);
-                Recipe recipeWithId = reGetRecipeWithId[0];
+                int recipeId = await _recipeService.GetRecipeIdByName(recipe.RecipeName);
 
                 //Create usefull variables
                 int howManyIngredients = 0;
-                string sql = "INSERT INTO RecipeIngredients (RecipeID, IngredientId, Quantity) VALUES (@RecipeID, @IngredientId, @Quantity)";
-                List<Ingredient> finalIngredients = new List<Ingredient>();
 
-                //Add every ingredient from provided recipe and get it back with proper ID - add it to list finalIngredients 
+                List<Quantities> finalIngredientsWithQuantities = new List<Quantities>();
+
+                //Add every ingredient from provided recipe and get its' ID - add it to list finalIngredientsWithQuantities 
                 foreach (var ing in recipe.ingredients)
                 {
                     var addingIngredientsResult = await _ingredientService.CreateIngredientAsync(ing);
-                    if (addingIngredientsResult == 0) throw new Exception("Failed to create ingredients");
 
-                    var tmp = await _ingredientService.GetIngredientsAsync(null, ing.IngredientName);
+                    int ingredientId = _ingredientService.GetIngredientIdByName(ing.IngredientName).Result;
 
-                    Ingredient ingridinetWithId = tmp[0];
-                    finalIngredients.Add(ingridinetWithId);
+                    Quantities quanti = new Quantities(ingredientId, ing.Quantity);
+
+                    finalIngredientsWithQuantities.Add(quanti);
                 }
 
                 //Add every ingredient it's relation to recipe
+                string sql = "INSERT INTO RecipeIngredients (RecipeID, IngredientId, Quantity) VALUES (@RecipeID, @IngredientId, @Quantity)";
                 using (IDbConnection connection = _connectionManager.CreateConnection())
                 {
                     connection.Open();
-                    foreach (var ing in finalIngredients)
+                    foreach (var quantities in finalIngredientsWithQuantities)
                     {
-                        var result = await connection.ExecuteAsync(sql, new { RecipeID = recipeWithId.RecipeID, IngredientId = ing.IngredientID, Quantity = ing.Quantity });
+                        var result = await connection.ExecuteAsync(sql, new { RecipeID = recipeId, IngredientId = quantities.IngredientId, Quantity = quantities.Quantity });
                         if (result != 0) howManyIngredients += result;
                     }
                     connection.Close();
@@ -126,6 +135,37 @@ namespace ReciveGiverApp.BL.Services
 
                 //Return how many ingredients were added
                 return howManyIngredients;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return 0;
+            }
+        }
+        public async Task<int> UpdateQuantityAsync(string recipeName, string ingredientName, string quantity)
+        {
+            try
+            {
+                var recip = await _recipeService.GetRecipeIdByName(recipeName);
+                if (recip == 0) throw new Exception("No recipe with this name was found");
+                
+                var ing = await _ingredientService.GetIngredientIdByName(ingredientName);
+                if (ing == 0) throw new Exception("No ingredient with this name was found");
+
+                int recipeID = recip;
+                int ingredientID = ing;
+
+                string sql = "UPDATE RecipeIngredients SET Quantity = @Quantity WHERE RecipeID = @RecipeID AND IngredientID = @IngredientID;";
+
+                using (IDbConnection connection = _connectionManager.CreateConnection())
+                {
+                    connection.Open();
+
+                    var result = await connection.ExecuteAsync(sql, new { Quantity = quantity, RecipeID = recipeID, IngredientID = ingredientID });
+
+                    connection.Close();
+                    return result;
+                }
             }
             catch (Exception ex)
             {
@@ -166,23 +206,11 @@ namespace ReciveGiverApp.BL.Services
                 return 0;
             }
         }
-
-
-
-
         public async Task<int> DeleteRecipeAsync(string Name)
         {
             //As removing recipe removes any recipes connected with it.
             return await _recipeService.DeleteRecipeAsync(Name);
         }
-
-
-
-        public async Task<int> UpdateIngredientsForRecipeAsync(string recipeName, Ingredient[] ingredients)
-        {
-            
-        }
-
 
     }
 }

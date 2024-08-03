@@ -35,6 +35,22 @@ namespace RecipeGiverApp.ApiService.Controllers
             }
         }
 
+        [HttpGet("GeIdByName")]
+        public async Task<ActionResult> GeIdByName(string Name)
+        {
+            try
+            {
+                var recipes = await _recipeService.GetRecipeIdByName(Name);
+                if (recipes == 0) return NotFound("No recipes with this name found.");
+                return Ok(recipes);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting recipe id");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         [HttpPost("CreateRecipesNoIngredients")]
         public async Task<ActionResult> CreateRecipesNoIngredients(Recipe recipe)
         {

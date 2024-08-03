@@ -103,36 +103,20 @@ namespace RecipeGiverApp.ApiService.Controllers
         }
 
 
-        //[HttpPut("UpdateIngredient")]
-        //public async Task<ActionResult> UpdateIngredientNameAsync(int ingredientId, string newName)
-        //{
-        //    try
-        //    {
-        //        var result = await _ingredientService.UpdateIngredientNameAsync(ingredientId, newName);
-        //        if (result == 0) return NotFound("No ingredient updated. Are Id and New Name valid?");
-        //        return Ok(result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "An error occurred while updating the ingredient");
-        //        return StatusCode(500, "Internal server error");
-        //    }
-        //}
-
-        //[HttpDelete("DeleteIngredient")]
-        //public async Task<ActionResult> DeleteIngredientAsync(string ingredientName)
-        //{
-        //    try
-        //    {
-        //        var result = await _ingredientService.DeleteIngredientAsync(ingredientName);
-        //        if (result == 0) return NotFound("No ingredient deleted. Is name valid?");
-        //        return Ok(result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "An error occurred while updating the ingredient");
-        //        return StatusCode(500, "Internal server error");
-        //    }
-        //}
+        [HttpPut("UpdateQuantityAsync")]
+        public async Task<ActionResult> UpdateQuantityAsync(string recipeName, string IngredientName, string quantity)
+        {
+            try
+            {
+                var result = await _recipeIngredientService.UpdateQuantityAsync(recipeName, IngredientName, quantity);
+                if (result == 0) return NotFound("No Quantity updated. Are Recipe Name and Ingredient Name valid?");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating the Quantity");
+                return StatusCode(500, "Internal server error");
+            }
+        }
     }
 }

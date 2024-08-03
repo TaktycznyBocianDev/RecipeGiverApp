@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ReciveGiverApp.Database.Data;
 using ReciveGiverApp.Models.Models;
@@ -15,6 +16,7 @@ namespace ReciveGiverApp.BL.Services
 {
     public interface IRecipeService
     {
+        public Task<int> GetRecipeIdByName(string RecipeName);
         public Task<List<Recipe>> GetRecipesAsync(string? Name = "", int CategoryId = 0);
         public Task<int> CreateRecipesNoIngredientsAsync(Recipe recipe);
         public Task<int> UpdateRecipeAsync(string recipeOldName, Recipe recipeNew);
@@ -31,6 +33,29 @@ namespace ReciveGiverApp.BL.Services
             _connectionManager = connectionManager;
             _logger = logger;
         }
+
+        public async Task<int> GetRecipeIdByName(string recipeName)
+        {
+            try
+            {
+                using (IDbConnection connection = _connectionManager.CreateConnection())
+                {
+                    connection.Open();
+
+                    string sql = "SELECT RecipeID FROM Recipes WHERE RecipeName = @RecipeName;";
+                    var result = await connection.QueryFirstOrDefaultAsync<int>(sql, new { RecipeName = recipeName });
+
+                    connection.Close();
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return 0;
+            }
+        }
+
 
         public async Task<List<Recipe>> GetRecipesAsync(string? Name = null, int CategoryId = 0)
         {

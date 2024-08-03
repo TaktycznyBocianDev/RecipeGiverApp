@@ -12,6 +12,7 @@ namespace ReciveGiverApp.BL.Services
     public interface IIngredientService
     {
         public Task<List<Ingredient>> GetIngredientsAsync(int? Id = null, string? Name = null);
+        public Task<int> GetIngredientIdByName(string recipeName);
         public Task<int> CreateIngredientAsync(Ingredient ingredient);
         public Task<int> UpdateIngredientNameAsync(int ingredientId, string newName);
         public Task<int> DeleteIngredientAsync(string newName);
@@ -28,6 +29,28 @@ namespace ReciveGiverApp.BL.Services
         {
             _connectionManager = connectionManager;
             _logger = logger;
+        }
+
+        public async Task<int> GetIngredientIdByName(string recipeName)
+        {
+            try
+            {
+                using (IDbConnection connection = _connectionManager.CreateConnection())
+                {
+                    connection.Open();
+
+                    string sql = "SELECT IngredientId FROM Ingredients WHERE IngredientName = @IngredientName;";
+                    var result = await connection.QueryFirstOrDefaultAsync<int>(sql, new { IngredientName = recipeName });
+
+                    connection.Close();
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return 0;
+            }
         }
 
         public async Task<List<Ingredient>> GetIngredientsAsync(int? IngredientID = null, string? IngredientName = null)
