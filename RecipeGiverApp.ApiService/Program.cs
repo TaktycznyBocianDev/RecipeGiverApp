@@ -25,6 +25,7 @@ builder.Services.AddTransient<ICategoryService, CategoryService>();
 builder.Services.AddTransient<IRecipeService, RecipeService>();
 builder.Services.AddTransient<IIngredientService, IngredientService>();
 builder.Services.AddTransient<IRecipeIngredientService, RecipeIngredientService>();
+builder.Services.AddTransient<IFavouritesService, FavouritesService>();
 
 var app = builder.Build();
 
