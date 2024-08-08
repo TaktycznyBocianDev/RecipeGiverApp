@@ -10,18 +10,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ReciveGiverApp.BL.Services
 {
     public interface IDailyMealsService
     {
 
-        public Task<List<DailyMeals>> GetDailyMeals(DateTime date);
-        public Task<List<DailyMeals>> GetDailyMeals(DateTime startDate, DateTime endDate);
-        public Task<int> AddRecipeToDay(Recipe recipe, DateTime date);
-        public Task<int> UpdateRecipeToDayForCategory(Recipe newRecipe, DateTime date);
-        public Task<int> DeleteRecipeFromDay(Recipe recipe, DateTime date);
-        public Task<int> DeleteDay(DateTime date);
+        public Task<List<DailyMeals>> GetDailyMealsAsync(DateTime date);
+        public Task<List<DailyMeals>> GetDailyMealsAsync(DateTime startDate, DateTime endDate);
+        public Task<int> AddRecipeToDayAsync(Recipe recipe, DateTime date);
+        public Task<int> UpdateRecipeToDayForCategoryAsync(Recipe newRecipe, DateTime date);
+        public Task<int> DeleteRecipeFromDayAsync(Recipe recipe, DateTime date);
+        public Task<int> DeleteDayAsync(DateTime date);
 
 
 
@@ -38,7 +39,7 @@ namespace ReciveGiverApp.BL.Services
             _logger = logger;
         }
 
-        public async Task<List<DailyMeals>> GetDailyMeals(DateTime date)
+        public async Task<List<DailyMeals>> GetDailyMealsAsync(DateTime date)
         {
             try
             {
@@ -48,7 +49,7 @@ namespace ReciveGiverApp.BL.Services
 
                     string sql = "SELECT * FROM DailyMeals WHERE DayDate = @DayDate;";
 
-                    var result = await connection.QueryAsync<DailyMeals>(sql, new { DayDate = date });
+                    var result = await connection.QueryAsync<DailyMeals>(sql, new { DayDate = FormatDate(date) });
                     var dailyMeals = result.ToList();
                     connection.Close();
                     return dailyMeals;
@@ -62,17 +63,17 @@ namespace ReciveGiverApp.BL.Services
             }
         }
 
-        public async Task<List<DailyMeals>> GetDailyMeals(DateTime startDate, DateTime endDate)
+        public async Task<List<DailyMeals>> GetDailyMealsAsync(DateTime startDate, DateTime endDate)
         {
             try
             {
                 using (IDbConnection connection = _connectionManager.CreateConnection())
                 {
-                    connection.Open(); 
+                    connection.Open();
 
                     string sql = "SELECT * FROM DailyMeals WHERE DayDate BETWEEN @StartDate AND @EndDate;";
                     
-                    var result = await connection.QueryAsync<DailyMeals>(sql, new { StartDate = startDate, EndDate = endDate });
+                    var result = await connection.QueryAsync<DailyMeals>(sql, new { StartDate = FormatDate(startDate), EndDate = FormatDate(endDate) });
                     var dailyMeals = result.ToList();
                     connection.Close();
                     return dailyMeals;
@@ -86,7 +87,7 @@ namespace ReciveGiverApp.BL.Services
             }
         }
 
-        public async Task<int> AddRecipeToDay(Recipe recipe, DateTime date)
+        public async Task<int> AddRecipeToDayAsync(Recipe recipe, DateTime date)
         {
             try
             {
@@ -96,7 +97,7 @@ namespace ReciveGiverApp.BL.Services
 
                     string sql = "INSERT INTO DailyMeals(DayDate, CategoryID, RecipeID) VALUES (@DayDate, @CategoryID, @RecipeID)";
 
-                    var result = await connection.ExecuteAsync(sql, new { DayDate = date, CategoryID = recipe.CategoryID, RecipeID = recipe.RecipeID });
+                    var result = await connection.ExecuteAsync(sql, new { DayDate = FormatDate(date), CategoryID = recipe.CategoryID, RecipeID = recipe.RecipeID });
                     connection.Close();
                     return result;
 
@@ -109,7 +110,7 @@ namespace ReciveGiverApp.BL.Services
             }
         }
 
-        public async Task<int> UpdateRecipeToDayForCategory(Recipe newRecipe, DateTime date)
+        public async Task<int> UpdateRecipeToDayForCategoryAsync(Recipe newRecipe, DateTime date)
         {
             try
             {
@@ -119,7 +120,7 @@ namespace ReciveGiverApp.BL.Services
 
                     string sql = "UPDATE DailyMeals SET RecipeID = @RecipeID  WHERE DayDate = @DayDate AND CategoryID = @CategoryID;";
 
-                    var result = await connection.ExecuteAsync(sql, new { DayDate = date, CategoryID = newRecipe.CategoryID, RecipeID = newRecipe.RecipeID });
+                    var result = await connection.ExecuteAsync(sql, new { DayDate = FormatDate(date), CategoryID = newRecipe.CategoryID, RecipeID = newRecipe.RecipeID });
                     connection.Close();
                     return result;
 
@@ -132,7 +133,7 @@ namespace ReciveGiverApp.BL.Services
             }
         }
 
-        public async Task<int> DeleteDay(DateTime date)
+        public async Task<int> DeleteDayAsync(DateTime date)
         {
             try
             {
@@ -142,7 +143,7 @@ namespace ReciveGiverApp.BL.Services
 
                     string sql = "DELETE FROM DailyMeals WHERE DayDate = @DayDate;";
 
-                    var result = await connection.ExecuteAsync(sql, new { DayDate = date});
+                    var result = await connection.ExecuteAsync(sql, new { DayDate = FormatDate(date) });
                     connection.Close();
                     return result;
 
@@ -155,7 +156,7 @@ namespace ReciveGiverApp.BL.Services
             }
         }
 
-        public async Task<int> DeleteRecipeFromDay(Recipe recipe, DateTime date)
+        public async Task<int> DeleteRecipeFromDayAsync(Recipe recipe, DateTime date)
         {
             try
             {
@@ -165,7 +166,7 @@ namespace ReciveGiverApp.BL.Services
 
                     string sql = "DELETE FROM DailyMeals WHERE DayDate = @DayDate AND RecipeID = @RecipeID;";
 
-                    var result = await connection.ExecuteAsync(sql, new { DayDate = date, RecipeID = recipe.RecipeID });
+                    var result = await connection.ExecuteAsync(sql, new { DayDate = FormatDate(date), RecipeID = recipe.RecipeID });
                     connection.Close();
                     return result;
 
@@ -179,5 +180,10 @@ namespace ReciveGiverApp.BL.Services
         }
 
        
+        private string FormatDate (DateTime date)
+        {
+            return date.ToString("yyyy-MM-dd");
+        }
+
     }
 }
