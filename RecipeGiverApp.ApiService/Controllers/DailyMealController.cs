@@ -54,14 +54,39 @@ namespace RecipeGiverApp.ApiService.Controllers
             }
         }
 
-        [HttpPost("CreateMealForTheDay")]
-        public async Task<ActionResult<List<Category>>> CreateMealForTheDay(Recipe recipe, DateTime date)
+        [HttpPost("CreateSingleMealForTheDay")]
+        public async Task<ActionResult<List<Category>>> CreateSingleMealForTheDay(Recipe recipe, DateTime date)
         {
             try
             {
                 var dailyMeal = await _dailyMealsService.AddRecipeToDayAsync(recipe, date);
                 if (dailyMeal == 0) return NotFound("No meals was created for day given!");
                 return Ok(dailyMeal);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating meal for this day!");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpPost("CreateAllMealsForTheDay")]
+        public async Task<ActionResult<List<Category>>> CreateAllMealsForTheDay(Recipe[] recipes, DateTime date)
+        {
+            try
+            {
+                int createdMeals = 0;
+
+                foreach (var recipe in recipes)
+                {
+                    var dailyMeal = await _dailyMealsService.AddRecipeToDayAsync(recipe, date);
+                    if (dailyMeal == 0) break;
+                    createdMeals++;
+                }
+
+                if (createdMeals == 0) return NotFound("No meals was created for day given!");
+                if (createdMeals < recipes.Length) return NotFound("No all meals were set to this day!");
+                return Ok(createdMeals);
             }
             catch (Exception ex)
             {
