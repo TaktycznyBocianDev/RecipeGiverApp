@@ -31,7 +31,7 @@ namespace ReciveGiverApp.BL.Services
             {
                 using (IDbConnection connection = _connectionManager.CreateConnection())
                 {
-                    connection.Open(); // Open the connection asynchronously
+                    connection.Open();
 
                     string sql = "SELECT * FROM Categories";
                     string param = "";
@@ -40,7 +40,7 @@ namespace ReciveGiverApp.BL.Services
                     if (Id != null) { param += " AND CategoryID = @Id"; }
 
                     if (param.StartsWith(" AND"))
-                    {
+                    { 
                         param = param.Substring(4);
                         param = " WHERE" + param;
                     }
