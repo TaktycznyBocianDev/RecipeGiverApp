@@ -1,23 +1,27 @@
-﻿@inherits LayoutComponentBase
+﻿@using MudBlazor
+@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<MudPaper Width="100%" Style="background-color: green;">
+    <MudContainer MaxWidth="MaxWidth.Small">
+            <MudStack Row="true" Spacing="2">
+                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Style="background-color: blue; color: white;">
+                    Delete
+                </MudButton>
+                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Style="background-color: blue; color: white;">
+                    Delete
+                </MudButton>
+                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Style="background-color: blue; color: white;">
+                    Delete
+                </MudButton>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
+            </MudStack>
+    </MudContainer>
+</MudPaper>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+<MudMainContent>
+    @Body
+</MudMainContent>
 
-<div id="blazor-error-ui">
-    An unhandled error has occurred.
-    <a href="" class="reload">Reload</a>
-    <a class="dismiss">🗙</a>
-</div>
+@code
+{
+}
