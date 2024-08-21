@@ -4,10 +4,10 @@ using RecipeGiverApp.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add service defaults & Aspire components.
+// Add service defaults & Aspire com   ponents.
 builder.AddServiceDefaults();
 
-builder.Services.AddMudServices();
+builder.Services.AddMudServices(); 
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
