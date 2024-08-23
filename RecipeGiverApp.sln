@@ -9,12 +9,16 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RecipeGiverApp.ApiService", "RecipeGiverApp.ApiService\RecipeGiverApp.ApiService.csproj", "{DF1853B2-0384-47F5-BDBD-80161BDC6D56}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RecipeGiverApp.Web", "RecipeGiverApp.Web\RecipeGiverApp.Web.csproj", "{AE84E987-BD6C-4F2F-87C8-CC00614353A2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9FC824F1-5FEF-419C-BA2F-8A7CDD8F9B0B} = {9FC824F1-5FEF-419C-BA2F-8A7CDD8F9B0B}
+		{D68F27E4-F61D-4EEB-9412-01CB692A9347} = {D68F27E4-F61D-4EEB-9412-01CB692A9347}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReciveGiverApp.Database", "ReciveGiverApp.Database\ReciveGiverApp.Database.csproj", "{D68F27E4-F61D-4EEB-9412-01CB692A9347}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReciveGiverApp.Database", "ReciveGiverApp.Database\ReciveGiverApp.Database.csproj", "{D68F27E4-F61D-4EEB-9412-01CB692A9347}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReciveGiverApp.Models", "ReciveGiverApp.Models\ReciveGiverApp.Models.csproj", "{9FC824F1-5FEF-419C-BA2F-8A7CDD8F9B0B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReciveGiverApp.Models", "ReciveGiverApp.Models\ReciveGiverApp.Models.csproj", "{9FC824F1-5FEF-419C-BA2F-8A7CDD8F9B0B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReciveGiverApp.BL", "ReciveGiverApp.BL\ReciveGiverApp.BL.csproj", "{FB12998F-7006-4684-A1FC-FAF8662163F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReciveGiverApp.BL", "ReciveGiverApp.BL\ReciveGiverApp.BL.csproj", "{FB12998F-7006-4684-A1FC-FAF8662163F4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

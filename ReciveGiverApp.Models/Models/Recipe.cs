@@ -14,7 +14,7 @@ namespace ReciveGiverApp.Models.Models
         public string Instructions { get; set; } = string.Empty;
         public string FitPorada { get; set; } = string.Empty;
         public int Kilocalories { get; set; }
-        public List<Ingredient> ingredients { get; set; } = new List<Ingredient> { };
+        public List<Ingredient> Ingredients { get; set; } = new List<Ingredient> { };
 
     }
 }

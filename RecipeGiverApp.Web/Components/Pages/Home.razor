@@ -1,7 +1,44 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+@using MudBlazor
+@using ReciveGiverApp.Models.Models
+@using RecipeGiverApp.Web.Components.Reusables
 
-<h1>Hello, world!</h1>
+@inject HttpClient Http
 
-Welcome to your new app.
+<RecipeDisplay Recipe="@recipe"> </RecipeDisplay>
+
+@code
+{
+    Recipe recipe = new Recipe();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Make an HTTP GET request to the API endpoint
+            var response = await Http.GetAsync($"/RecipeIngredient/GetRecipeWithIngredients/{"Pszemek"}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Parse the response if the request was successful
+                recipe = await response.Content.ReadFromJsonAsync<Recipe>();
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                // Handle not found
+                Console.WriteLine("Recipe not found");
+            }
+            else
+            {
+                // Handle other response statuses
+                Console.WriteLine("An error occurred while fetching the recipe");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle any exceptions that occur during the request
+            Console.WriteLine($"An error occurred: {ex.Message}");
+        }
+    }
+}

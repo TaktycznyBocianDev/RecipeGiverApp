@@ -1,0 +1,50 @@
+﻿@using MudBlazor
+@using ReciveGiverApp.Models.Models
+
+<div class="recipe-card">
+    <MudCard Class="recipe-card">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h5" Class="recipe-title">@Recipe.RecipeName</MudText>
+                <MudText Typo="Typo.h6" Class="recipe-calories">@Recipe.Kilocalories kcal</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+
+        <MudDivider Class="header-divider" />
+
+        <MudCardContent>
+            <MudText Typo="Typo.h6" Class="section-header">Instructions:</MudText>
+            @foreach (string instruction in splittedRecipes)
+            {
+                <MudText Typo="Typo.body2" Class="instruction-text">@instruction</MudText>
+            }
+
+            <MudDivider Class="content-divider" />
+
+            <MudText Typo="Typo.h6" Class="section-header">Ingredients:</MudText>
+            @foreach (Ingredient ingredient in Recipe.Ingredients)
+            {
+                <MudText Typo="Typo.body2" Class="ingredient-text">@ingredient.IngredientName</MudText>
+            }
+
+            <MudDivider Class="content-divider" />
+
+            <MudText Typo="Typo.h6" Class="fit-porada-header">Fit Porada:</MudText>
+            <MudText Typo="Typo.body1" Class="fit-porada-text">@Recipe.FitPorada</MudText>
+        </MudCardContent>
+    </MudCard>
+</div>
+
+
+
+@code {
+    [Parameter]
+    public Recipe Recipe { get; set; } = new Recipe();
+
+    private List<string> splittedRecipes;
+
+    protected override void OnParametersSet()
+    {
+        splittedRecipes = StringSplitter.SplitStringByNumberedSections(Recipe.Instructions);
+    }
+}

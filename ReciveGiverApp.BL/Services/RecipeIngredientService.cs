@@ -79,7 +79,7 @@ namespace ReciveGiverApp.BL.Services
                             Ingredient ing = nextIgredient[0];
                             ingredients.Add(ing);
                         }
-                        recipe.ingredients = ingredients;
+                        recipe.Ingredients = ingredients;
                     }
 
                     connection.Close();
@@ -109,7 +109,7 @@ namespace ReciveGiverApp.BL.Services
                 List<Quantities> finalIngredientsWithQuantities = new List<Quantities>();
 
                 //Add every ingredient from provided recipe and get its' ID - add it to list finalIngredientsWithQuantities 
-                foreach (var ing in recipe.ingredients)
+                foreach (var ing in recipe.Ingredients)
                 {
                     var addingIngredientsResult = await _ingredientService.CreateIngredientAsync(ing);
 

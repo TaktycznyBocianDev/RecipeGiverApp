@@ -15,7 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\RecipeGiverApp.ApiService\RecipeGiverApp.ApiService.csproj" />
     <ProjectReference Include="..\RecipeGiverApp.ServiceDefaults\RecipeGiverApp.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\ReciveGiverApp.Database\ReciveGiverApp.Database.csproj" />
+    <ProjectReference Include="..\ReciveGiverApp.Models\ReciveGiverApp.Models.csproj" />
   </ItemGroup>
 
 </Project>

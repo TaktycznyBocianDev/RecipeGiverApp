@@ -24,7 +24,7 @@ namespace RecipeGiverApp.ApiService.Controllers
         }
 
         [HttpGet("GetRecipeWithIngredients/{recipeName}")]
-        public async Task<ActionResult> GetRecipeWithIngredientsAsync(string recipeName)
+        public async Task<ActionResult<Recipe>> GetRecipeWithIngredientsAsync(string recipeName)
         {
             try
             {
@@ -38,6 +38,7 @@ namespace RecipeGiverApp.ApiService.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
         [HttpGet("GetRecipesWithIngredients")]
         public async Task<ActionResult<List<Ingredient>>> GetRecipesWithIngredientsAsync()
         {
