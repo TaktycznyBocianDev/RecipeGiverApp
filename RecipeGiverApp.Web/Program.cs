@@ -1,6 +1,4 @@
 using MudBlazor.Services;
-using RecipeGiverApp.ApiService.Controllers;
-using RecipeGiverApp.Web;
 using RecipeGiverApp.Web.Components;
 using ReciveGiverApp.BL.Services;
 using ReciveGiverApp.Database.Data;
@@ -36,23 +34,19 @@ builder.Services.AddOutputCache();
 
 var app = builder.Build();
 
+// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
 app.UseAntiforgery();
-app.UseOutputCache();
 
-// Map Razor components
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+app.MapRazorComponents<App>();
 
-// Map controller endpoints for API
-app.MapControllers();
-
-// Run the application
 app.Run();
