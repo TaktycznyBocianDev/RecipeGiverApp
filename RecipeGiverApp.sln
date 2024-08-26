@@ -14,13 +14,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReciveGiverApp.Models", "Re
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReciveGiverApp.BL", "ReciveGiverApp.BL\ReciveGiverApp.BL.csproj", "{FB12998F-7006-4684-A1FC-FAF8662163F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecipeGiverApp.Web", "RecipeGiverApp.Web\RecipeGiverApp.Web.csproj", "{BC012A2E-1F45-4270-8F7C-9D828CA96DF7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RecipeGiverApp.Web", "RecipeGiverApp.Web\RecipeGiverApp.Web.csproj", "{BC012A2E-1F45-4270-8F7C-9D828CA96DF7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9FC824F1-5FEF-419C-BA2F-8A7CDD8F9B0B} = {9FC824F1-5FEF-419C-BA2F-8A7CDD8F9B0B}
 		{D68F27E4-F61D-4EEB-9412-01CB692A9347} = {D68F27E4-F61D-4EEB-9412-01CB692A9347}
 		{DF1853B2-0384-47F5-BDBD-80161BDC6D56} = {DF1853B2-0384-47F5-BDBD-80161BDC6D56}
 		{FB12998F-7006-4684-A1FC-FAF8662163F4} = {FB12998F-7006-4684-A1FC-FAF8662163F4}
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorApp3", "BlazorApp3\BlazorApp3.csproj", "{9C5FA2B8-7D0E-475D-9646-3AE6BE5BE3FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -56,6 +58,10 @@ Global
 		{BC012A2E-1F45-4270-8F7C-9D828CA96DF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC012A2E-1F45-4270-8F7C-9D828CA96DF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC012A2E-1F45-4270-8F7C-9D828CA96DF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C5FA2B8-7D0E-475D-9646-3AE6BE5BE3FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C5FA2B8-7D0E-475D-9646-3AE6BE5BE3FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C5FA2B8-7D0E-475D-9646-3AE6BE5BE3FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C5FA2B8-7D0E-475D-9646-3AE6BE5BE3FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

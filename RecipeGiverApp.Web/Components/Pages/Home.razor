@@ -1,19 +1,21 @@
-﻿@page "/"
+﻿@rendermode InteractiveServer
+
+@page "/"
 @using RecipeGiverApp.Web.Components.Layout
 @using ReciveGiverApp.Models.Models
 
 @inject HttpClient Http
 
-@layout BaseLayout
+@layout MainLayout
 
-<MudExpansionPanels MultiExpansion="true">
+@* <MudExpansionPanels MultiExpansion="true">
     @foreach (Category category in categories)
     {
         <MudExpansionPanel Text="@category.CategoryName" MaxHeight="500">
 
         </MudExpansionPanel>
     }
-</MudExpansionPanels>
+</MudExpansionPanels> *@
 
 
 @code
@@ -23,8 +25,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        categories = await GetCategoriesAsync();
-        recipe = await GetRecipesAsync();
+        // categories = await GetCategoriesAsync();
+        // recipe = await GetRecipesAsync();
     }
 
     private async Task<List<Category>> GetCategoriesAsync()

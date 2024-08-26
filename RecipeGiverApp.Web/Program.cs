@@ -1,17 +1,20 @@
 using MudBlazor.Services;
-using RecipeGiverApp.Web.Components;
 using ReciveGiverApp.BL.Services;
 using ReciveGiverApp.Database.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add MudBlazor services
+// Add services to the container.
+
+// 1. Add Razor components services
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents(); // Only server components
+
+// 2. Add MudBlazor services
 builder.Services.AddMudServices();
 
-// Register the database connection manager as a singleton
+// 3. Register application-specific services
 builder.Services.AddSingleton<ConnectionManager>();
-
-// Register services as necessary
 builder.Services.AddTransient<ICategoryService, CategoryService>();
 builder.Services.AddTransient<IRecipeService, RecipeService>();
 builder.Services.AddTransient<IIngredientService, IngredientService>();
@@ -19,34 +22,40 @@ builder.Services.AddTransient<IRecipeIngredientService, RecipeIngredientService>
 builder.Services.AddTransient<IFavouritesService, FavouritesService>();
 builder.Services.AddTransient<IDailyMealsService, DailyMealsService>();
 
-// Configure HttpClient for API requests
+// 4. Configure HttpClient for API requests
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7381") });
 
-
-// Register controllers for API
+// 5. Add controllers for API endpoints
 builder.Services.AddControllers();
 
-// Add Razor components and interactive server components
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
-
+// 6. Add output caching if needed
 builder.Services.AddOutputCache();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
+// 1. Error handling and security configurations
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
 
+// 2. HTTPS redirection and static files
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
+
+// 3. Routing configuration
+app.UseRouting();
+
+// 4. Authorization (if needed)
+// app.UseAuthentication();
+// app.UseAuthorization();
+
 app.UseAntiforgery();
 
-app.MapRazorComponents<App>();
+
+app.MapControllers();
 
 app.Run();
