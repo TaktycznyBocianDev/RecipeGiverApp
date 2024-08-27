@@ -1,8 +1,110 @@
 ﻿@page "/"
+@using RecipeGiverApp.Web.Components.Layout
+@using RecipeGiverApp.Web.Reusables
+@using ReciveGiverApp.Models.Models
+
+@inject HttpClient Http
 
 
-<PageTitle>Home</PageTitle>
+<MudExpansionPanels MultiExpansion="true">
+    @foreach (Category category in categories)
+    {
+        <MudExpansionPanel Text="@category.CategoryName">
 
-<h1>Hello, world!</h1>
+            <MudExpansionPanels MultiExpansion="true">
 
-Welcome to your new app.
+                @foreach (Recipe recip in recipes)
+                {
+
+                    @if (recip.CategoryID == category.CategoryId)
+                    {
+                        <MudExpansionPanel Text="@recip.RecipeName">
+                            <RecipeDisplay Recipe="recip"></RecipeDisplay>
+                        </MudExpansionPanel>
+                    }
+                }
+
+            </MudExpansionPanels>
+
+        </MudExpansionPanel>
+    }
+</MudExpansionPanels>
+
+
+
+@code
+{
+    List<Category> categories = new List<Category>();
+    List<Recipe> recipes = new List<Recipe>();
+
+    Recipe test = new Recipe();
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await GetCategoriesAsync();
+        recipes = await GetRecipesAsync();
+    }
+
+    private async Task<List<Category>> GetCategoriesAsync()
+    {
+        List<Category> newCategories;
+        try
+        {
+            var response = await Http.GetAsync("/Category/GetCategories");
+
+            if (response.IsSuccessStatusCode)
+            {
+                newCategories = await response.Content.ReadFromJsonAsync<List<Category>>();
+                return newCategories ?? new List<Category>();
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Console.WriteLine("Recipes not found");
+                return new List<Category>();
+            }
+            else
+            {
+                Console.WriteLine("An error occurred while fetching the recipes");
+                return new List<Category>();
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle any exceptions that occur during the request
+            Console.WriteLine($"An error occurred: {ex.Message}");
+            return new List<Category>();
+        }
+    }
+
+    private async Task<List<Recipe>> GetRecipesAsync()
+    {
+        List<Recipe> newRecipes;
+        try
+        {
+            var response = await Http.GetAsync("/RecipeIngredient/GetRecipesWithIngredients");
+
+            if (response.IsSuccessStatusCode)
+            {
+                newRecipes = await response.Content.ReadFromJsonAsync<List<Recipe>>();
+                return newRecipes ?? new List<Recipe>();
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Console.WriteLine("Recipes not found");
+                return new List<Recipe>();
+            }
+            else
+            {
+                Console.WriteLine("An error occurred while fetching the recipes");
+                return new List<Recipe>();
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle any exceptions that occur during the request
+            Console.WriteLine($"An error occurred: {ex.Message}");
+            return new List<Recipe>();
+        }
+    }
+
+}

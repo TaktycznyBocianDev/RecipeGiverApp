@@ -11,7 +11,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RecipeGiverApp.ApiService\RecipeGiverApp.ApiService.csproj" />
-    <ProjectReference Include="..\RecipeGiverApp.Web\RecipeGiverApp.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>
