@@ -1,23 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 public static class StringSplitter
 {
+    /// <summary>
+    /// Takes a single input string and returns a list of strings, each starting with a sequence "number.".
+    /// </summary>
+    /// <param name="input">String, most common use for recipe instructions.</param>
+    /// <returns>List of strings, where each of them is a separate instruction.</returns>
     public static List<string> SplitStringByNumberedSections(string input)
     {
         if (string.IsNullOrWhiteSpace(input))
             return new List<string>();
 
-        // Define a regular expression pattern to match numbers followed by a period and space (e.g., "1. ", "2. ", etc.)
-        string pattern = @"(?=\d+\.\s)";
+        // Define a regular expression pattern to match numbers followed by a period and a space (e.g., "1. ", "2. ", etc.)
+        string pattern = @"(\d+\.)";
 
-        // Use Regex.Split to divide the input string based on the pattern
-        string[] parts = Regex.Split(input, pattern);
+        // Use Regex.Matches to find all numbered sections in the input string
+        var matches = Regex.Matches(input, pattern);
+        var result = new List<string>();
 
-        // Filter out any empty strings that may result from the split and return as a list
-        var result = new List<string>(parts);
-        result.RemoveAll(string.IsNullOrWhiteSpace);
+        // Loop through all matches to construct the resulting list
+        for (int i = 0; i < matches.Count; i++)
+        {
+            // Find the start index of the current and next match
+            int startIndex = matches[i].Index;
+            int endIndex = (i < matches.Count - 1) ? matches[i + 1].Index : input.Length;
+
+            // Extract the section, including the number and its associated text
+            string section = input.Substring(startIndex, endIndex - startIndex).Trim();
+
+            result.Add(section);
+        }
 
         return result;
     }

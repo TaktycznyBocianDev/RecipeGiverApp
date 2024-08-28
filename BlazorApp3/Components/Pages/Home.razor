@@ -9,7 +9,7 @@
 <MudExpansionPanels MultiExpansion="true">
     @foreach (Category category in categories)
     {
-        <MudExpansionPanel Text="@category.CategoryName">
+        <MudExpansionPanel Text="@category.CategoryName" Style="background-color: lightgoldenrodyellow">
 
             <MudExpansionPanels MultiExpansion="true">
 
@@ -19,7 +19,9 @@
                     @if (recip.CategoryID == category.CategoryId)
                     {
                         <MudExpansionPanel Text="@recip.RecipeName">
-                            <RecipeDisplay Recipe="recip"></RecipeDisplay>
+                            <MudPaper Class="border-solid border-2 pa-4" Style="border-color: red">
+                                <RecipeDisplay Recipe="recip"></RecipeDisplay>
+                            </MudPaper>
                         </MudExpansionPanel>
                     }
                 }
