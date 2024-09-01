@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@page "/favourites"
 @using RecipeGiverApp.Web.Components.Layout
 @using RecipeGiverApp.Web.Reusables
 @using ReciveGiverApp.Models.Models
@@ -18,16 +18,25 @@
 
                     @if (recip.CategoryID == category.CategoryId)
                     {
-                        <MudExpansionPanel Text="@recip.RecipeName">
-                            <MudPaper Class="border-solid border-2 pa-4" Style="border-color: red">
-                                <RecipeDisplay Recipe="recip" Favourites="favouriteRecipesIDs"></RecipeDisplay>
-                            </MudPaper>
-                        </MudExpansionPanel>
+
+                        @if (favouriteRecipesIDs.Contains(recip.RecipeID))
+                        {
+                            <MudExpansionPanel Text="@recip.RecipeName">
+                                <MudPaper Class="border-solid border-2 pa-4" Style="border-color: red">
+                                    <RecipeDisplay Recipe="recip" Favourites="favouriteRecipesIDs"></RecipeDisplay>
+                                </MudPaper>
+                            </MudExpansionPanel>
+                        }
+                        else
+                        {
+                            break;
+
+                        }
+
+
                     }
                 }
-
             </MudExpansionPanels>
-
         </MudExpansionPanel>
     }
 </MudExpansionPanels>
@@ -38,15 +47,15 @@
 {
     List<Category> categories = new List<Category>();
     List<Recipe> recipes = new List<Recipe>();
-    List<int> favouriteRecipesIDs = new List<int>(); 
+    List<int> favouriteRecipesIDs = new List<int>();
 
     Recipe test = new Recipe();
 
     protected override async Task OnInitializedAsync()
     {
         categories = await GetCategoriesAsync();
-        recipes = await GetRecipesAsync();
         favouriteRecipesIDs = await GetFavouritesAsync();
+        recipes = await GetRecipesAsync();
     }
 
     private async Task<List<Category>> GetCategoriesAsync()

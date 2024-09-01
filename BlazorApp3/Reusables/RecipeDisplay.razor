@@ -1,13 +1,25 @@
 ﻿@using MudBlazor
 @using ReciveGiverApp.Models.Models
 
+@inject HttpClient Http
+
 <MudContainer Fixed="true">
     <MudGrid Justify="Justify.SpaceEvenly">
         <MudItem xs="6">
             <MudText Typo="Typo.h3">@Recipe.RecipeName</MudText>
         </MudItem>
-        <MudItem xs="6">
+        <MudItem xs="5">
             <MudText Typo="Typo.h4">Kalorie: @Recipe.Kilocalories kcal</MudText>
+        </MudItem>
+        <MudItem xs="1">
+            @if (@isFav)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Secondary" aria-label="Dodaj do ulubionych" Size="Size.Large" OnClick="@ToggleFavourite"></MudIconButton>
+            }
+            else
+            {
+                <MudIconButton Icon="@Icons.Material.Outlined.FavoriteBorder" Color="Color.Secondary" aria-label="Dodaj do ulubionych" Size="Size.Large" OnClick="@ToggleFavourite"></MudIconButton>
+            }
         </MudItem>
 
         <MudFlexBreak />
@@ -44,115 +56,67 @@
 
 </MudContainer>
 
-@* <MudContainer Fixed="true">
-    <MudStack Row="true" Justify="Justify.SpaceAround">
-        <MudText Typo="Typo.h3" Style="color: darkolivegreen">@Recipe.RecipeName</MudText>
-        <MudText Typo="Typo.h4" Style="color: darkslategrey">Kalorie: @Recipe.Kilocalories kcal</MudText>
-    </MudStack>
-
-    <MudStack Row="true">
-        <MudPaper>
-            <MudText Typo="Typo.h5">Ingredients:</MudText>
-            @foreach (Ingredient ingredient in Recipe.Ingredients)
-            {
-                <MudText Typo="Typo.h6">@ingredient.IngredientName</MudText>
-            }
-        </MudPaper>
-        <MudPaper>
-            <MudText Typo="Typo.h5">Instructions:</MudText>
-            @foreach (string instruction in splittedRecipes)
-            {
-                <MudText Typo="Typo.h6">@instruction</MudText>
-            }
-        </MudPaper>
-    </MudStack>
-
-    <MudDivider Class="content-divider" />
-    <MudPaper>
-        <MudText Typo="Typo.h5">Fit Porada:</MudText>
-        <MudText Typo="Typo.h6">@Recipe.FitPorada</MudText>
-    </MudPaper>
-</MudContainer> *@
-
-
-@* <MudCard>
-    <MudCardHeader>
-        <CardHeaderContent>
-            <MudStack Row="true">
-                <MudText Typo="Typo.h3">@Recipe.RecipeName</MudText>
-                <MudText Typo="Typo.h4" Style="color: blue">@Recipe.Kilocalories kcal</MudText>
-            </MudStack>
-        </CardHeaderContent>
-    </MudCardHeader>
-
-    <MudCardContent>
-        <MudStack Row="true">
-            <MudPaper>
-                <MudText Typo="Typo.h5">Ingredients:</MudText>
-                @foreach (Ingredient ingredient in Recipe.Ingredients)
-                {
-                    <MudText Typo="Typo.body2" Class="ingredient-text">@ingredient.IngredientName</MudText>
-                }
-            </MudPaper>
-                <MudPaper>
-                    <MudText Typo="Typo.h5">Instructions:</MudText>
-                    @foreach (string instruction in splittedRecipes)
-                    {
-                        <MudText Typo="Typo.body2" Class="instruction-text">@instruction</MudText>
-                    }
-            </MudPaper>
-        </MudStack>
-
-        <MudDivider Class="content-divider" />
-        <MudPaper Style="background-color: lightblue">
-            <MudText Typo="Typo.h5">Fit Porada:</MudText>
-            <MudText Typo="Typo.body1">@Recipe.FitPorada</MudText>
-        </MudPaper>
-
-
-    </MudCardContent>
-
-</MudCard> *@
-
-@*<MudCard Class="recipe-card">
-        <MudCardHeader>
-            <CardHeaderContent>
-                <MudText Typo="Typo.h5" Class="recipe-title">@Recipe.RecipeName</MudText>
-                <MudText Typo="Typo.h6" Class="recipe-calories">@Recipe.Kilocalories kcal</MudText>
-            </CardHeaderContent>
-        </MudCardHeader>
-
-        <MudDivider Class="header-divider" />
-
-        <MudCardContent>
-            <MudText Typo="Typo.h6" Class="section-header">Instructions:</MudText>
-            @foreach (string instruction in splittedRecipes)
-            {
-                <MudText Typo="Typo.body2" Class="instruction-text">@instruction</MudText>
-            }
-
-            <MudDivider Class="content-divider" />
-
-            <MudText Typo="Typo.h6" Class="section-header">Ingredients:</MudText>
-            @foreach (Ingredient ingredient in Recipe.Ingredients)
-            {
-                <MudText Typo="Typo.body2" Class="ingredient-text">@ingredient.IngredientName</MudText>
-            }
-
-
-        </MudCardContent>
-    </MudCard> *@
-
-
-
 @code {
     [Parameter]
     public Recipe Recipe { get; set; } = new Recipe();
+
+    [Parameter]
+    public List<int> Favourites { get; set; } = new List<int>();
+    private bool isFav = false;
 
     private List<string> splittedRecipes;
 
     protected override void OnParametersSet()
     {
         splittedRecipes = StringSplitter.SplitStringByNumberedSections(Recipe.Instructions);
+
+        isFav = IsFavourite(Favourites, Recipe);
+    }
+
+    private bool IsFavourite(List<int> favourites, Recipe recipe)
+    {
+        return favourites.Any(fav => fav == recipe.RecipeID);
+    }
+
+    private async Task ToggleFavourite()
+    {
+        if (isFav)
+        {
+            await RemoveFromFavourites();
+        }
+        else
+        {
+            await AddToFavourites();
+        }
+
+        isFav = !isFav;
+    }
+
+    private async Task AddToFavourites()
+    {
+        try
+        {
+            await Http.PostAsJsonAsync($"/Favourites/AddToFavouritiesById?recipeID={Recipe.RecipeID}", Recipe.RecipeID);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
+        }
+
+    }
+
+    private async Task RemoveFromFavourites()
+    {
+        try
+        {
+            await Http.DeleteAsync($"/Favourites/RemoveFromFavouritiesById?recipeID={Recipe.RecipeID}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
+        }
+
     }
 }
