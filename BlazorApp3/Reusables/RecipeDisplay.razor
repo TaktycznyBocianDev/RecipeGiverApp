@@ -11,16 +11,20 @@
         <MudItem xs="5">
             <MudText Typo="Typo.h4">Kalorie: @Recipe.Kilocalories kcal</MudText>
         </MudItem>
-        <MudItem xs="1">
-            @if (@isFav)
-            {
-                <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Secondary" aria-label="Dodaj do ulubionych" Size="Size.Large" OnClick="@ToggleFavourite"></MudIconButton>
-            }
-            else
-            {
-                <MudIconButton Icon="@Icons.Material.Outlined.FavoriteBorder" Color="Color.Secondary" aria-label="Dodaj do ulubionych" Size="Size.Large" OnClick="@ToggleFavourite"></MudIconButton>
-            }
-        </MudItem>
+        @if (AllowFavouritesChange)
+        {
+            <MudItem xs="1">
+                @if (@isFav)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Favorite" Color="Color.Secondary" aria-label="Dodaj do ulubionych" Size="Size.Large" OnClick="@ToggleFavourite"></MudIconButton>
+                }
+                else
+                {
+                    <MudIconButton Icon="@Icons.Material.Outlined.FavoriteBorder" Color="Color.Secondary" aria-label="Dodaj do ulubionych" Size="Size.Large" OnClick="@ToggleFavourite"></MudIconButton>
+                }
+            </MudItem>
+        }
+        
 
         <MudFlexBreak />
 
@@ -57,11 +61,22 @@
 </MudContainer>
 
 @code {
+    /// <summary>
+    /// Recipe to display
+    /// </summary>
     [Parameter]
     public Recipe Recipe { get; set; } = new Recipe();
-
+    /// <summary>
+    /// List of current favourite recipes
+    /// </summary>
     [Parameter]
     public List<int> Favourites { get; set; } = new List<int>();
+    /// <summary>
+    /// True will display button for adding/removing this item from favourites.
+    /// </summary>
+    [Parameter]
+    public bool AllowFavouritesChange { get; set; } = true;
+
     private bool isFav = false;
 
     private List<string> splittedRecipes;

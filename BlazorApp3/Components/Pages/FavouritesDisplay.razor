@@ -16,24 +16,13 @@
                 @foreach (Recipe recip in recipes)
                 {
 
-                    @if (recip.CategoryID == category.CategoryId)
+                    @if (recip.CategoryID == category.CategoryId && favouriteRecipesIDs.Contains(recip.RecipeID))
                     {
-
-                        @if (favouriteRecipesIDs.Contains(recip.RecipeID))
-                        {
                             <MudExpansionPanel Text="@recip.RecipeName">
                                 <MudPaper Class="border-solid border-2 pa-4" Style="border-color: red">
-                                    <RecipeDisplay Recipe="recip" Favourites="favouriteRecipesIDs"></RecipeDisplay>
+                                    <RecipeDisplay Recipe="recip" Favourites="favouriteRecipesIDs" AllowFavouritesChange="false"></RecipeDisplay>
                                 </MudPaper>
                             </MudExpansionPanel>
-                        }
-                        else
-                        {
-                            break;
-
-                        }
-
-
                     }
                 }
             </MudExpansionPanels>
