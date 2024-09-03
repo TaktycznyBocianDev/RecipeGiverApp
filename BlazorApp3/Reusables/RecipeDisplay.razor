@@ -24,7 +24,7 @@
                 }
             </MudItem>
         }
-        
+
 
         <MudFlexBreak />
 
@@ -51,8 +51,54 @@
 
         <MudItem xs="12">
             <MudPaper>
-                <MudText Typo="Typo.h5">Fit Porada:</MudText>
-                <MudText Typo="Typo.h6">@Recipe.FitPorada</MudText>
+                <MudText Typo="Typo.h5">Komentarz:</MudText>
+                <MudStack Row="true">
+                    @if (!editComment)
+                    {
+
+                        <MudItem xs="12">
+                            <MudStack Row="true">
+                                <MudItem xs="12">
+                                    <MudPaper>
+                                        <MudText Typo="Typo.h4">@Recipe.FitPorada</MudText>
+                                    </MudPaper>
+                                </MudItem>
+                                <MudItem xs="0">
+                                    <MudPaper>
+                                        <MudToggleIconButton @bind-Toggled="editComment"
+                                                             Icon="@Icons.Material.Filled.Edit"
+                                                             Color="@Color.Success"
+                                                             ToggledIcon="@Icons.Material.Filled.EditOff"
+                                                             ToggledColor="@Color.Error"
+                                                             Size="Size.Medium"
+                                                             title="Edytuj komentarz" />
+                                    </MudPaper>
+                                </MudItem>
+                            </MudStack>
+                        </MudItem>
+                    }
+                    else
+                    {
+                        <MudItem xs="12">
+                            <MudStack Row="true">
+                                <MudTextField T="string" Text="@Recipe.FitPorada" Label="Komentarz" Typo="Typo.h4" AutoGrow></MudTextField>
+                                <MudIconButton Icon="@Icons.Material.Filled.AddTask" Color="Color.Success" aria-label="Zatwierdz zmiany"></MudIconButton>
+                                <MudToggleIconButton @bind-Toggled="editComment"
+                                                     Icon="@Icons.Material.Filled.Edit"
+                                                     Color="@Color.Success"
+                                                     ToggledIcon="@Icons.Material.Filled.EditOff"
+                                                     ToggledColor="@Color.Error"
+                                                     Size="Size.Medium"
+                                                     title="Edytuj komentarz" />
+                            </MudStack>
+                        </MudItem>
+                    }
+                    @* <MudItem xs="0">
+                    <MudPaper>
+
+                    </MudPaper>
+                    </MudItem> *@
+                </MudStack>
             </MudPaper>
         </MudItem>
 
@@ -61,6 +107,8 @@
 </MudContainer>
 
 @code {
+    ///Recipe/UpdateRecipeAsync?OldName=Testung
+
     /// <summary>
     /// Recipe to display
     /// </summary>
@@ -76,6 +124,8 @@
     /// </summary>
     [Parameter]
     public bool AllowFavouritesChange { get; set; } = true;
+
+    private bool editComment = false;
 
     private bool isFav = false;
 
