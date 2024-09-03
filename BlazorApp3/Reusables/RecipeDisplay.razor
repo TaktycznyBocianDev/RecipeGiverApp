@@ -2,6 +2,7 @@
 @using ReciveGiverApp.Models.Models
 
 @inject HttpClient Http
+@inject ISnackbar Snackbar
 
 <MudContainer Fixed="true">
     <MudGrid Justify="Justify.SpaceEvenly">
@@ -82,7 +83,7 @@
                         <MudItem xs="12">
                             <MudStack Row="true">
                                 <MudTextField @bind-Value="Recipe.FitPorada" T="string" Text="@Recipe.FitPorada" Label="Komentarz" Typo="Typo.h4" AutoGrow></MudTextField>
-                                <MudIconButton OnClick="@UpdateComment" Icon="@Icons.Material.Filled.AddTask" Color="Color.Success" aria-label="Zatwierdz zmiany"></MudIconButton>
+                                <MudIconButton OnClick="@UpdateCommentAndUI" Icon="@Icons.Material.Filled.AddTask" Color="Color.Success" aria-label="Zatwierdz zmiany"></MudIconButton>
                                 <MudToggleIconButton @bind-Toggled="editComment"
                                                      Icon="@Icons.Material.Filled.Edit"
                                                      Color="@Color.Success"
@@ -191,5 +192,12 @@
             Console.WriteLine(ex);
             throw;
         }
+    }
+
+    private async Task UpdateCommentAndUI()
+    {
+        await UpdateComment();
+        Snackbar.Add("Komentarz zmodyfikowany");
+        editComment = !editComment;
     }
 }
