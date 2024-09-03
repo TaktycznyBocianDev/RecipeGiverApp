@@ -81,8 +81,8 @@
                     {
                         <MudItem xs="12">
                             <MudStack Row="true">
-                                <MudTextField T="string" Text="@Recipe.FitPorada" Label="Komentarz" Typo="Typo.h4" AutoGrow></MudTextField>
-                                <MudIconButton Icon="@Icons.Material.Filled.AddTask" Color="Color.Success" aria-label="Zatwierdz zmiany"></MudIconButton>
+                                <MudTextField @bind-Value="Recipe.FitPorada" T="string" Text="@Recipe.FitPorada" Label="Komentarz" Typo="Typo.h4" AutoGrow></MudTextField>
+                                <MudIconButton OnClick="@UpdateComment" Icon="@Icons.Material.Filled.AddTask" Color="Color.Success" aria-label="Zatwierdz zmiany"></MudIconButton>
                                 <MudToggleIconButton @bind-Toggled="editComment"
                                                      Icon="@Icons.Material.Filled.Edit"
                                                      Color="@Color.Success"
@@ -93,11 +93,6 @@
                             </MudStack>
                         </MudItem>
                     }
-                    @* <MudItem xs="0">
-                    <MudPaper>
-
-                    </MudPaper>
-                    </MudItem> *@
                 </MudStack>
             </MudPaper>
         </MudItem>
@@ -183,5 +178,18 @@
             throw;
         }
 
+    }
+
+    private async Task UpdateComment()
+    {
+        try
+        {
+            await Http.PutAsJsonAsync($"Recipe/UpdateRecipeAsync?OldName={Recipe.RecipeName}", Recipe);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
+        }
     }
 }
