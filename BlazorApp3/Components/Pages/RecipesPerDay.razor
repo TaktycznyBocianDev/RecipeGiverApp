@@ -1,0 +1,182 @@
+﻿@page "/recipesPerDay"
+@using RecipeGiverApp.Web.Reusables
+@using ReciveGiverApp.Models.Models
+
+@inject HttpClient Http
+
+<MudGrid Justify="Justify.SpaceEvenly">
+    <MudItem xs="12">
+        <MudDatePicker @bind-Date = "_date" @oninput = "OnDateChanged" PickerVariant="PickerVariant.Static" Color="Color.Success" Rounded="true" />
+    </MudItem>
+    <MudFlexBreak />
+    <MudItem xs="12">
+        <MudExpansionPanels MultiExpansion="true">
+            @foreach (Category category in categories)
+            {
+                <MudExpansionPanel Text="@category.CategoryName" Style="background-color: lightgoldenrodyellow">
+                    <MudExpansionPanels MultiExpansion="true">
+                        @foreach (Recipe recip in selectedDayRecipes)
+                        {
+                            @if (recip.CategoryID == category.CategoryId)
+                            {
+                                <MudExpansionPanel Text="@recip.RecipeName">
+                                    <MudPaper Class="border-solid border-2 pa-4" Style="border-color: red">
+                                        <RecipeDisplay Recipe="recip" Favourites="favouriteRecipesIDs" AllowFavouritesChange="true"></RecipeDisplay>
+                                    </MudPaper>
+                                </MudExpansionPanel>
+                            }
+                        }
+                    </MudExpansionPanels>
+                </MudExpansionPanel>
+            }
+        </MudExpansionPanels>
+    </MudItem>
+</MudGrid>
+
+@code {
+    List<Category> categories = new List<Category>();
+    List<Recipe> recipes = new List<Recipe>();
+    List<int> favouriteRecipesIDs = new List<int>();
+    List<Recipe> selectedDayRecipes = new List<Recipe>();
+
+    private DateTime? _date;
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await GetCategoriesAsync();
+        recipes = await GetRecipesAsync();
+        favouriteRecipesIDs = await GetFavouritesAsync();
+        await LoadRecipesForSelectedDayAsync();
+    }
+
+    private async Task OnDateChanged()
+    {
+        _date = _date;
+        await LoadRecipesForSelectedDayAsync();
+    }
+
+    private async Task LoadRecipesForSelectedDayAsync()
+    {
+        selectedDayRecipes = await GetRecipesForSelectedDayAsync();
+    }
+
+    private async Task<List<Category>> GetCategoriesAsync()
+    {
+        List<Category> newCategories;
+        try
+        {
+            var response = await Http.GetAsync("/Category/GetCategories");
+
+            if (response.IsSuccessStatusCode)
+            {
+                newCategories = await response.Content.ReadFromJsonAsync<List<Category>>();
+                return newCategories ?? new List<Category>();
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Console.WriteLine("Categories not found");
+                return new List<Category>();
+            }
+            else
+            {
+                Console.WriteLine("An error occurred while fetching the categories");
+                return new List<Category>();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+            return new List<Category>();
+        }
+    }
+
+    private async Task<List<Recipe>> GetRecipesAsync()
+    {
+        List<Recipe> newRecipes;
+        try
+        {
+            var response = await Http.GetAsync("/RecipeIngredient/GetRecipesWithIngredients");
+
+            if (response.IsSuccessStatusCode)
+            {
+                newRecipes = await response.Content.ReadFromJsonAsync<List<Recipe>>();
+                return newRecipes ?? new List<Recipe>();
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Console.WriteLine("Recipes not found");
+                return new List<Recipe>();
+            }
+            else
+            {
+                Console.WriteLine("An error occurred while fetching the recipes");
+                return new List<Recipe>();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+            return new List<Recipe>();
+        }
+    }
+
+    private async Task<List<Recipe>> GetRecipesForSelectedDayAsync()
+    {
+        List<Recipe> newRecipes;
+        try
+        {
+            var response = await Http.GetAsync($"/DailyMeal/GetDayByDate?date={_date}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                newRecipes = await response.Content.ReadFromJsonAsync<List<Recipe>>();
+                return newRecipes ?? new List<Recipe>();
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Console.WriteLine("Recipes not found");
+                return new List<Recipe>();
+            }
+            else
+            {
+                Console.WriteLine("An error occurred while fetching the recipes for this day");
+                return new List<Recipe>();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+            return new List<Recipe>();
+        }
+    }
+
+    private async Task<List<int>> GetFavouritesAsync()
+    {
+        List<int> newFav;
+        try
+        {
+            var response = await Http.GetAsync("/Favourites/GetFavourities");
+
+            if (response.IsSuccessStatusCode)
+            {
+                newFav = await response.Content.ReadFromJsonAsync<List<int>>();
+                return newFav ?? new List<int>();
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Console.WriteLine("Favourites not found");
+                return new List<int>();
+            }
+            else
+            {
+                Console.WriteLine("An error occurred while fetching the favourites");
+                return new List<int>();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+            return new List<int>();
+        }
+    }
+}
