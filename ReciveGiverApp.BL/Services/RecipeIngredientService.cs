@@ -18,6 +18,7 @@ namespace ReciveGiverApp.BL.Services
     public interface IRecipeIngredientService
     {
         public Task<List<Recipe>> GetRecipesWithIngredientsAsync(string? Name = null);
+        public Task<List<Recipe>> GetRecipesWithIngredientsAsync(int Id);
         public Task<int> CreateRecipesWithCorespondingIngredientsAsync(Recipe recipe);
         public Task<int> UpdateQuantityAsync(string recipeName, string IngredientName, string quantity);
         public Task<int> DeleteRecipeAsync(string Name);
@@ -94,6 +95,54 @@ namespace ReciveGiverApp.BL.Services
                 return new List<Recipe>();
             }
         }
+
+        public async Task<List<Recipe>> GetRecipesWithIngredientsAsync(int Id)
+        {
+
+            try
+            {
+                var recipes = _recipeService.GetRecipeByIdAsync(Id).GetAwaiter().GetResult();
+                if (recipes == null) throw new Exception($"No recipes were found.");
+
+                using (IDbConnection connection = _connectionManager.CreateConnection())
+                {
+                    connection.Open();
+
+                    string sql = "SELECT * FROM RecipeIngredients WHERE RecipeID = @RecipeID";
+
+                    foreach (var recipe in recipes)
+                    {
+                        //For each recipe, gets it's ingredients
+                        var result = await connection.QueryAsync<RecipeIngredientDTO>(sql, new { RecipeID = recipe.RecipeID });
+                        List<RecipeIngredientDTO> recipeIngredients = result.ToList();
+
+                        List<Ingredient> ingredients = new List<Ingredient>();
+
+                        foreach (var item in recipeIngredients)
+                        {
+
+                            var nextIgredient = _ingredientService.GetIngredientsAsync(item.IngredientID).GetAwaiter().GetResult();
+                            if (nextIgredient == null) break;
+
+                            Ingredient ing = nextIgredient[0];
+                            ingredients.Add(ing);
+                        }
+                        recipe.Ingredients = ingredients;
+                    }
+
+                    connection.Close();
+
+                }
+                return recipes;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return new List<Recipe>();
+            }
+        }
+
         public async Task<int> CreateRecipesWithCorespondingIngredientsAsync(Recipe recipe)
         {
             try

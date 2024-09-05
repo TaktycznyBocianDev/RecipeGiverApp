@@ -18,6 +18,7 @@ namespace ReciveGiverApp.BL.Services
     {
         public Task<int> GetRecipeIdByName(string RecipeName);
         public Task<List<Recipe>> GetRecipesAsync(string? Name = "", int CategoryId = 0);
+        public Task<List<Recipe>> GetRecipeByIdAsync(int Id);
         public Task<int> CreateRecipesNoIngredientsAsync(Recipe recipe);
         public Task<int> UpdateRecipeAsync(string recipeOldName, Recipe recipeNew);
         public Task<int> DeleteRecipeAsync(string recipeName);
@@ -95,6 +96,31 @@ namespace ReciveGiverApp.BL.Services
             }
         }
 
+        public async Task<List<Recipe>> GetRecipeByIdAsync(int Id)
+        {
+            try
+            {
+                using (IDbConnection connection = _connectionManager.CreateConnection())
+                {
+                    connection.Open();
+                    string sql = "SELECT * FROM Recipes WHERE RecipeID = @RecipeID";
+
+                    var result = await connection.QueryAsync<Recipe>(sql, new { RecipeID = Id});
+                    var recipes = result.ToList();
+
+                    Console.WriteLine(sql);
+
+                    connection.Close();
+                    return recipes;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                return new List<Recipe>();
+            }
+        }
         public async Task<int> CreateRecipesNoIngredientsAsync(Recipe recipe)
         {
             try

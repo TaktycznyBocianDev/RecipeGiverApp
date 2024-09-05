@@ -6,7 +6,7 @@
 
 <MudGrid Justify="Justify.SpaceEvenly">
     <MudItem xs="12">
-        <MudDatePicker @bind-Date = "_date" @oninput = "OnDateChanged" PickerVariant="PickerVariant.Static" Color="Color.Success" Rounded="true" />
+        <MudDatePicker Date="@_date" DateChanged="OnDateChanged" PickerVariant="PickerVariant.Static" Color="Color.Success" Rounded="true" />
     </MudItem>
     <MudFlexBreak />
     <MudItem xs="12">
@@ -15,7 +15,7 @@
             {
                 <MudExpansionPanel Text="@category.CategoryName" Style="background-color: lightgoldenrodyellow">
                     <MudExpansionPanels MultiExpansion="true">
-                        @foreach (Recipe recip in selectedDayRecipes)
+                        @foreach (Recipe recip in recipes)
                         {
                             @if (recip.CategoryID == category.CategoryId)
                             {
@@ -39,25 +39,32 @@
     List<int> favouriteRecipesIDs = new List<int>();
     List<Recipe> selectedDayRecipes = new List<Recipe>();
 
-    private DateTime? _date;
+    private List<DailyMeals> thisDayMeals = new List<DailyMeals>();
+    private DateTime? _date = DateTime.Today;
 
     protected override async Task OnInitializedAsync()
     {
         categories = await GetCategoriesAsync();
-        recipes = await GetRecipesAsync();
+        //recipes = await GetRecipesAsync();
         favouriteRecipesIDs = await GetFavouritesAsync();
         await LoadRecipesForSelectedDayAsync();
     }
 
-    private async Task OnDateChanged()
+    private async Task OnDateChanged(DateTime? newDate)
     {
-        _date = _date;
+        recipes = new List<Recipe>();
+        _date = newDate;
         await LoadRecipesForSelectedDayAsync();
     }
 
     private async Task LoadRecipesForSelectedDayAsync()
     {
-        selectedDayRecipes = await GetRecipesForSelectedDayAsync();
+        thisDayMeals = await GetMealsForSelectedDayAsync();
+        foreach (DailyMeals meal in thisDayMeals)
+        {
+            Recipe recipe = await GetRecipeByIdAsync(meal.RecipeID);
+            recipes.Add(recipe);
+        }
     }
 
     private async Task<List<Category>> GetCategoriesAsync()
@@ -120,33 +127,63 @@
         }
     }
 
-    private async Task<List<Recipe>> GetRecipesForSelectedDayAsync()
+    private async Task<Recipe> GetRecipeByIdAsync(int Id)
     {
-        List<Recipe> newRecipes;
+        Recipe newRecipe;
+        try
+        {
+            var response = await Http.GetAsync($"/RecipeIngredient/GetRecipeWithIngredientsByID/{Id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                newRecipe = await response.Content.ReadFromJsonAsync<Recipe>();
+                return newRecipe ?? new Recipe();
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Console.WriteLine("Recipes not found");
+                return new Recipe();
+            }
+            else
+            {
+                Console.WriteLine("An error occurred while fetching the recipes");
+                return new Recipe();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+            return new Recipe();
+        }
+    }
+
+    private async Task<List<DailyMeals>> GetMealsForSelectedDayAsync()
+    {
+        List<DailyMeals> newRecipes;
         try
         {
             var response = await Http.GetAsync($"/DailyMeal/GetDayByDate?date={_date}");
 
             if (response.IsSuccessStatusCode)
             {
-                newRecipes = await response.Content.ReadFromJsonAsync<List<Recipe>>();
-                return newRecipes ?? new List<Recipe>();
+                newRecipes = await response.Content.ReadFromJsonAsync<List<DailyMeals>>();
+                return newRecipes ?? new List<DailyMeals>();
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
                 Console.WriteLine("Recipes not found");
-                return new List<Recipe>();
+                return new List<DailyMeals>();
             }
             else
             {
                 Console.WriteLine("An error occurred while fetching the recipes for this day");
-                return new List<Recipe>();
+                return new List<DailyMeals>();
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"An error occurred: {ex.Message}");
-            return new List<Recipe>();
+            return new List<DailyMeals>();
         }
     }
 

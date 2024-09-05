@@ -39,6 +39,22 @@ namespace RecipeGiverApp.ApiService.Controllers
             }
         }
 
+        [HttpGet("GetRecipeWithIngredientsByID/{recipeID}")]
+        public async Task<ActionResult<Recipe>> GetRecipeWithIngredientsByID(int recipeID)
+        {
+            try
+            {
+                var recipe = await _recipeIngredientService.GetRecipesWithIngredientsAsync(recipeID);
+                if (recipe == null || recipe.Count == 0) return NotFound("No recipe found.");
+                return Ok(recipe[0]);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting recipe");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         [HttpGet("GetRecipesWithIngredients")]
         public async Task<ActionResult<List<Ingredient>>> GetRecipesWithIngredientsAsync()
         {
