@@ -65,7 +65,61 @@
             Recipe recipe = await GetRecipeByIdAsync(meal.RecipeID);
             recipes.Add(recipe);
         }
+        await CheckForEmptyDay(recipes);
     }
+
+    private async Task CheckForEmptyDay(List<Recipe> recipes)
+    {
+        if (recipes.Count == 0)
+        {
+            this.recipes = await SelectRandomRecipes();
+
+        }
+    }
+
+    public async Task<List<Recipe>> SelectRandomRecipes()
+    {
+        List<Recipe> randomRecipes = new List<Recipe>();
+
+        foreach (Category categ in categories)
+        {
+            // Fetch recipes for the given category
+            var response = await Http.GetAsync($"/Recipe/GetRecipes?CategoryId={categ.CategoryId}");
+
+            // Ensure the response is successful
+            if (response.IsSuccessStatusCode)
+            {
+                // Deserialize the list of recipes
+                List<Recipe> recipesByCategory = await response.Content.ReadFromJsonAsync<List<Recipe>>();
+
+                // Ensure the list is not empty
+                if (recipesByCategory != null && recipesByCategory.Count > 0)
+                {
+                    // Select a random recipe from the list
+                    int recipeID = RandomElementSelector.GetRandomElement<Recipe>(recipesByCategory).RecipeID;
+
+                    // Fetch recipe details including ingredients
+                    var res = await Http.GetAsync($"/RecipeIngredient/GetRecipeWithIngredientsByID/{recipeID}");
+
+                    // Ensure the response is successful
+                    if (res.IsSuccessStatusCode)
+                    {
+                        // Deserialize the selected recipe
+                        Recipe selectedRecipe = await res.Content.ReadFromJsonAsync<Recipe>();
+
+                        // Add the recipe to the final list if it's not null
+                        if (selectedRecipe != null)
+                        {
+                            randomRecipes.Add(selectedRecipe);
+                        }
+                    }
+                }
+            }
+        }
+
+        return randomRecipes;
+    }
+
 
     private async Task<List<Category>> GetCategoriesAsync()
     {
