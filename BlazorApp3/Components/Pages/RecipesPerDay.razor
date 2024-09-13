@@ -73,7 +73,20 @@
         if (recipes.Count == 0)
         {
             this.recipes = await SelectRandomRecipes();
+            await SaveRecipesForThisDay();
+        }
+    }
 
+    public async Task SaveRecipesForThisDay()
+    {
+        try
+        {
+            await Http.PostAsJsonAsync($"/DailyMeal/CreateAllMealsForTheDay?date={FormatDate(_date)}", recipes);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
         }
     }
 
@@ -216,7 +229,9 @@
         List<DailyMeals> newRecipes;
         try
         {
-            var response = await Http.GetAsync($"/DailyMeal/GetDayByDate?date={_date}");
+            string tmp = $"/DailyMeal/GetDayByDate?date={FormatDate(_date)}";
+
+            var response = await Http.GetAsync($"/DailyMeal/GetDayByDate?date={FormatDate(_date)}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -270,4 +285,10 @@
             return new List<int>();
         }
     }
+    
+    private string FormatDate(DateTime? date)
+    {
+        return date?.ToString("yyyy-MM-dd");
+    }
+
 }
