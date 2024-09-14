@@ -6,7 +6,7 @@
 
 <MudContainer Fixed="true">
     <MudGrid Justify="Justify.SpaceEvenly">
-        <MudItem xs="6">
+        <MudItem xs="5">
             <MudText Typo="Typo.h3">@Recipe.RecipeName</MudText>
         </MudItem>
         <MudItem xs="5">
@@ -25,6 +25,20 @@
                 }
             </MudItem>
         }
+        @if (Removable)
+        {
+            <MudItem xs="1">
+                <MudIconButton Icon="@Icons.Material.Filled.Remove" Color="Color.Error" aria-label="Usuń przepis" Size="Size.Large" OnClick="@OnRemoveRecipe"></MudIconButton>
+            </MudItem>
+        }
+        @if (Replaceable)
+        {
+            <MudItem xs="1">
+                <MudIconButton Icon="@Icons.Material.Filled.Replay" Color="Color.Error" aria-label="Zamień przepis" Size="Size.Large"></MudIconButton>
+            </MudItem>
+        }
+        
+        
 
 
         <MudFlexBreak />
@@ -103,7 +117,6 @@
 </MudContainer>
 
 @code {
-    ///Recipe/UpdateRecipeAsync?OldName=Testung
 
     /// <summary>
     /// Recipe to display
@@ -120,6 +133,13 @@
     /// </summary>
     [Parameter]
     public bool AllowFavouritesChange { get; set; } = true;
+    [Parameter]
+    public bool Removable { get; set; } = true;
+    [Parameter]
+    public bool Replaceable { get; set; } = false;
+
+    [Parameter]
+    public EventCallback<string> OnRemovedRecipe { get; set; }
 
     private bool editComment = false;
 
@@ -147,17 +167,17 @@
         }
         else
         {
-            await AddToFavourites();
+            await AddToFavourites(Recipe);
         }
 
         isFav = !isFav;
     }
 
-    private async Task AddToFavourites()
+    private async Task AddToFavourites(Recipe recipe)
     {
         try
         {
-            await Http.PostAsJsonAsync($"/Favourites/AddToFavouritiesById?recipeID={Recipe.RecipeID}", Recipe.RecipeID);
+            await Http.PostAsJsonAsync($"/Favourites/AddToFavouritiesById?recipeID={recipe.RecipeID}", recipe.RecipeID);
         }
         catch (Exception ex)
         {
@@ -199,5 +219,62 @@
         await UpdateComment();
         Snackbar.Add("Komentarz zmodyfikowany");
         editComment = !editComment;
+    }
+
+    private async Task OnRemoveRecipe()
+    {
+        Recipe removedRecipe = Recipe;
+        bool removeRecipeWasFavourite = isFav;
+        await RemoveRecipe();
+        ShowSnackbarRemove(removedRecipe, removeRecipeWasFavourite);
+        await OnRemovedRecipe.InvokeAsync("Child component changed!");
+    }
+
+    void ShowSnackbarRemove(Recipe recipToRestore, bool wasFav)
+    {
+        Snackbar.Add("Przepis usunięty!", Severity.Normal, config =>
+        {
+            config.Action = "Cofnij";
+            config.ActionColor = Color.Error;
+            config.Onclick = snackbar =>
+            {
+                CancelRemoveRecipe(recipToRestore, wasFav);
+                OnRemovedRecipe.InvokeAsync("Child component changed!");
+                return Task.CompletedTask;
+            };
+        });
+    }
+
+    private async Task RemoveRecipe()
+    {
+
+        try
+        {
+            await Http.DeleteAsync($"/RecipeIngredient/DeleteRecipe?recipeName={Recipe.RecipeName}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
+        }
+    }
+
+    private async Task CancelRemoveRecipe(Recipe recipToRestore, bool wasFav)
+    {
+        try
+        {
+            await Http.PostAsJsonAsync("/RecipeIngredient/CreateRecipeWithIngredients", recipToRestore);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
+        }
+
+        if (wasFav)
+        {
+            await AddToFavourites(recipToRestore);
+        }
+
     }
 }

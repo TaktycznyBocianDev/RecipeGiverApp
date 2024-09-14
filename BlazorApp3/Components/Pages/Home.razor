@@ -20,7 +20,7 @@
                     {
                         <MudExpansionPanel Text="@recip.RecipeName">
                             <MudPaper Class="border-solid border-2 pa-4" Style="border-color: red">
-                                <RecipeDisplay Recipe="recip" Favourites="favouriteRecipesIDs" AllowFavouritesChange="true"></RecipeDisplay>
+                                <RecipeDisplay Recipe="recip" Favourites="favouriteRecipesIDs" AllowFavouritesChange="true" OnRemovedRecipe="RemovedRecipe"></RecipeDisplay>
                             </MudPaper>
                         </MudExpansionPanel>
                     }
@@ -45,6 +45,12 @@
     protected override async Task OnInitializedAsync()
     {
         categories = await GetCategoriesAsync();
+        recipes = await GetRecipesAsync();
+        favouriteRecipesIDs = await GetFavouritesAsync();
+    }
+
+    private async Task RemovedRecipe()
+    {
         recipes = await GetRecipesAsync();
         favouriteRecipesIDs = await GetFavouritesAsync();
     }
