@@ -81,7 +81,7 @@ namespace RecipeGiverApp.ApiService.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while deleting favourities");
+                _logger.LogError(ex, "An error occurred while deleting favourities"); 
                 return StatusCode(500, "Internal server error");
             }
         }

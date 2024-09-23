@@ -37,8 +37,8 @@
                 <MudIconButton Icon="@Icons.Material.Filled.Replay" Color="Color.Error" aria-label="Zamień przepis" Size="Size.Large"></MudIconButton>
             </MudItem>
         }
-        
-        
+
+
 
 
         <MudFlexBreak />
@@ -225,21 +225,29 @@
     {
         Recipe removedRecipe = Recipe;
         bool removeRecipeWasFavourite = isFav;
+        await RemoveFromFavourites();
         await RemoveRecipe();
-        ShowSnackbarRemove(removedRecipe, removeRecipeWasFavourite);
         await OnRemovedRecipe.InvokeAsync("Child component changed!");
+        ShowSnackbarRemove(removedRecipe, removeRecipeWasFavourite);
     }
 
     void ShowSnackbarRemove(Recipe recipToRestore, bool wasFav)
     {
         Snackbar.Add("Przepis usunięty!", Severity.Normal, config =>
         {
+            config.ShowCloseIcon = false;
             config.Action = "Cofnij";
             config.ActionColor = Color.Error;
             config.Onclick = snackbar =>
             {
-                CancelRemoveRecipe(recipToRestore, wasFav);
+                CancelRemoveRecipe(recipToRestore);
                 OnRemovedRecipe.InvokeAsync("Child component changed!");
+
+                if (wasFav)
+                {
+                     AddToFavourites(recipToRestore);
+                }
+
                 return Task.CompletedTask;
             };
         });
@@ -259,7 +267,8 @@
         }
     }
 
-    private async Task CancelRemoveRecipe(Recipe recipToRestore, bool wasFav)
+  
+    private async Task CancelRemoveRecipe(Recipe recipToRestore)
     {
         try
         {
@@ -271,10 +280,6 @@
             throw;
         }
 
-        if (wasFav)
-        {
-            await AddToFavourites(recipToRestore);
-        }
 
     }
 }
