@@ -1,0 +1,42 @@
+﻿@using MudBlazor
+@using ReciveGiverApp.Models.Models
+
+@inject HttpClient Http
+
+<MudSelect T="Ingredient" @bind-Value="SelectedIngredient" Label="Wybierz składnik" Required="true">
+    @foreach (Ingredient ingredient in Ingredients)
+    {
+        <MudSelectItem Value="ingredient">@ingredient.IngredientName</MudSelectItem>
+    }
+</MudSelect>
+
+@code
+{
+    [Parameter]
+    public EventCallback<Ingredient> OnSelected { get; set; }
+
+    [Parameter]
+    public List<Ingredient>? Ingredients { get; set; }
+
+    private Ingredient _selectedIngredient = new Ingredient();
+    public Ingredient SelectedIngredient
+    {
+        get => _selectedIngredient;
+        set
+        {
+            if (_selectedIngredient != value)
+            {
+                _selectedIngredient = value;
+                OnSelected.InvokeAsync(value);  // Notify parent about the change
+            }
+        }
+    }
+
+    
+
+    protected override Task OnInitializedAsync()
+    {
+        return base.OnInitializedAsync();
+    }
+
+}
