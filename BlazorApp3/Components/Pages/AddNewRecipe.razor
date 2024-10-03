@@ -2,67 +2,106 @@
 
 @using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
+@using RecipeGiverApp.Web.Reusables
+@using ReciveGiverApp.Models.Models
+
+@inject HttpClient Http
 
 <MudGrid>
     <MudItem xs="10" sm="10">
         <MudPaper Class="pa-4">
             <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
                 <MudTextField T="string" Label="Nazwa Przepisu" Required="true" RequiredError="Przepis musi mieć nazwę!" />
-                <MudTextField T="string" Label="Kaloryczność" Required="true" RequiredError="Wprowadź kalorycznośc danego przepisu" />
-                <MudTextField T="string" Label="Password" HelperText="Choose a strong password" @ref="pwField1"
-                              InputType="InputType.Password"
-                              Validation="@(new Func<string, IEnumerable<string>>(PasswordStrength))" Required="true"
-                              RequiredError="Password is required!" />
-                <MudTextField T="string"
-                              Label="Password" HelperText="Repeat the password" InputType="InputType.Password"
-                              Validation="@(new Func<string, string>(PasswordMatch))" />
-                <div class="d-flex">
-                    <MudRadioGroup T="string" Required="true" RequiredError="Account type is required!">
-                        <MudRadio Value="@("Personal")">Personal</MudRadio>
-                        <MudRadio Value="@("Professional")">Professional</MudRadio>
-                    </MudRadioGroup>
-                </div>
-                <div class="d-flex align-center justify-space-between">
-                    <MudCheckBox T="bool" Required="true" RequiredError="You must agree" Label="I agree!" />
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(!success)" Class="ml-auto">Register</MudButton>
-                </div>
+                <MudTextField T="string" Label="Kaloryczność" Required="true" RequiredError="Wprowadź kaloryczność danego przepisu" />
             </MudForm>
         </MudPaper>
-        <MudPaper Class="pa-4 mt-4">
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" DropShadow="false" OnClick="@(()=>form.Validate())">Validate</MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Secondary" DropShadow="false" OnClick="@(()=>form.ResetAsync())" Class="mx-2">Reset</MudButton>
-            <MudButton Variant="Variant.Filled" DropShadow="false" OnClick="@(()=>form.ResetValidation())">Reset Validation</MudButton>
+    </MudItem>
+    <MudSpacer>
+
+    </MudSpacer>
+
+    <MudItem xs="10" sm="10">
+    <MudPaper Class="pa-4">
+        @foreach (IngredientSelector ingredientSelector in ingredientSelectors)
+        {
+            <MudItem xs="10" sm="10">
+                    <IngredientSelector Ingredients="ingredients" OnSelected="OnIngredientSelected" OnDeselected="OnIngredientDeselected"></IngredientSelector>
+            </MudItem>
+            <MudSpacer></MudSpacer>
+        }
+    </MudPaper>
+    </MudItem>
+
+
+    <MudSpacer>
+
+    </MudSpacer>
+    <MudItem xs="10" sm="10">
+        <MudPaper Class="pa-4">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" DropShadow="false" OnClick="@(()=>form.ResetAsync())" Class="mx-2">Reset</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" DropShadow="false" OnClick="@AddRecipe" Class="mx-2">Dodaj Przepis</MudButton>
         </MudPaper>
-        </MudItem>
+    </MudItem>
 </MudGrid>
+
 @code {
     bool success;
     string[] errors = { };
-    MudTextField<string> pwField1;
     MudForm form;
 
-    private IEnumerable<string> PasswordStrength(string pw)
+    List<IngredientSelector> ingredientSelectors = new List<IngredientSelector>();
+    List<Ingredient> ingredients = new List<Ingredient>();
+
+    protected override async Task OnInitializedAsync()
     {
-        if (string.IsNullOrWhiteSpace(pw))
+        ingredients = await GetIngredientsAsync();
+        ingredientSelectors.Add(new IngredientSelector());
+    }
+
+    private async Task<List<Ingredient>> GetIngredientsAsync()
+    {
+        List<Ingredient> ingredients;
+        try
         {
-            yield return "Password is required!";
-            yield break;
+            var response = await Http.GetAsync("/Ingredient/GetIngredients");
+
+            if (response.IsSuccessStatusCode)
+            {
+                ingredients = await response.Content.ReadFromJsonAsync<List<Ingredient>>();
+                return ingredients ?? new List<Ingredient>();
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Console.WriteLine("Ingredients not found");
+                return new List<Ingredient>();
+            }
+            else
+            {
+                Console.WriteLine("An error occurred while fetching the ingredients");
+                return new List<Ingredient>();
+            }
         }
-        if (pw.Length < 8)
-            yield return "Password must be at least of length 8";
-        if (!Regex.IsMatch(pw, @"[A-Z]"))
-            yield return "Password must contain at least one capital letter";
-        if (!Regex.IsMatch(pw, @"[a-z]"))
-            yield return "Password must contain at least one lowercase letter";
-        if (!Regex.IsMatch(pw, @"[0-9]"))
-            yield return "Password must contain at least one digit";
+        catch (Exception ex)
+        {
+            // Handle any exceptions that occur during the request
+            Console.WriteLine($"An error occurred: {ex.Message}");
+            return new List<Ingredient>();
+        }
     }
 
-    private string PasswordMatch(string arg)
+    private void OnIngredientSelected()
     {
-        if (pwField1.Value != arg)
-            return "Passwords don't match";
-        return null;
+        ingredientSelectors.Add(new IngredientSelector());
     }
 
+    private void OnIngredientDeselected()
+    {
+        ingredientSelectors.RemoveAt(ingredientSelectors.Count-1);
+    }
+
+    private void AddRecipe()
+    {
+        // Placeholder for functionality to add a recipe
+        Console.WriteLine("Recipe added!");
+    }
 }

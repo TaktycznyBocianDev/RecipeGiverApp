@@ -3,12 +3,36 @@
 
 @inject HttpClient Http
 
-<MudSelect T="Ingredient" @bind-Value="SelectedIngredient" Label="Wybierz składnik" Required="true">
-    @foreach (Ingredient ingredient in Ingredients)
+<MudStack Row="true">
+
+    @if (Checked)
     {
-        <MudSelectItem Value="ingredient">@ingredient.IngredientName</MudSelectItem>
+        <MudGrid>
+            <MudItem xs="3">
+                <MudText Typo="Typo.h6" Color="Color.Primary" Bold="true">@_selectedIngredient.IngredientName</MudText>
+            </MudItem>
+            <MudItem xs="2">
+                <MudText Typo="Typo.subtitle1" Color="Color.Secondary">@_selectedIngredient.Quantity</MudText>
+            </MudItem>
+            <MudItem xs="2">
+                <MudIconButton Icon="@Icons.Material.Filled.HighlightOff" Color="Color.Error" aria-label="Usuń składnik" OnClick="OnIngredientUnselected" />
+            </MudItem>
+        </MudGrid>
     }
-</MudSelect>
+    else
+    {
+        <MudSelect T="Ingredient" @bind-Value="SelectedIngredient" Label="Wybierz składnik" Required="true">
+            @foreach (Ingredient ingredient in Ingredients)
+            {
+                <MudSelectItem Value="ingredient">@ingredient.IngredientName</MudSelectItem>
+            }
+        </MudSelect>
+        <MudTextField @bind-Value="SelectedIngredient.Quantity" Label="Podaj Wymaganą ilość danego składnika" Required="true"></MudTextField>
+        <MudIconButton Icon="@Icons.Material.Filled.Check" Color="Color.Success" aria-label="Dodaj składnik" OnClick="OnIngredientSelected" />
+    }
+      
+</MudStack>
+
 
 @code
 {
@@ -16,7 +40,13 @@
     public EventCallback<Ingredient> OnSelected { get; set; }
 
     [Parameter]
+    public EventCallback<Ingredient> OnDeselected { get; set; }
+
+    [Parameter]
     public List<Ingredient>? Ingredients { get; set; }
+
+    [Parameter]
+    public bool Checked { get; set; }
 
     private Ingredient _selectedIngredient = new Ingredient();
     public Ingredient SelectedIngredient
@@ -27,16 +57,30 @@
             if (_selectedIngredient != value)
             {
                 _selectedIngredient = value;
-                OnSelected.InvokeAsync(value);  // Notify parent about the change
             }
         }
     }
 
-    
-
     protected override Task OnInitializedAsync()
     {
+        Checked = false;
+        _selectedIngredient.IngredientName = "Wybierz Składnik";
         return base.OnInitializedAsync();
+    }
+
+    private void OnIngredientSelected()
+    {
+        OnSelected.InvokeAsync(_selectedIngredient);  // Notify parent about the change
+        Checked = !Checked;
+    }
+
+
+    private void OnIngredientUnselected()
+    {
+        _selectedIngredient = new Ingredient();
+        _selectedIngredient.IngredientName = "Wybierz Składnik";
+        OnDeselected.InvokeAsync();
+        Checked = !Checked;
     }
 
 }
