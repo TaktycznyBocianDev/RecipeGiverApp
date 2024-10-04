@@ -5,7 +5,7 @@
 @using RecipeGiverApp.Web.Reusables
 @using ReciveGiverApp.Models.Models
 
-@inject HttpClient Http
+@inject HttpClient Http 
 
 <MudGrid>
     <MudItem xs="10" sm="10">
@@ -30,6 +30,18 @@
             <MudSpacer></MudSpacer>
         }
     </MudPaper>
+    </MudItem>
+
+    <MudItem xs="10" sm="10">
+        <MudPaper Class="pa-4">
+            @foreach (IngredientSelector ingredientSelector in ingredientSelectors)
+            {
+                <MudItem xs="10" sm="10">
+                    <InstructionAdder></InstructionAdder>
+                </MudItem>
+                <MudSpacer></MudSpacer>
+            }
+        </MudPaper>
     </MudItem>
 
 

@@ -21,4 +21,10 @@
     <ProjectReference Include="..\ReciveGiverApp.Models\ReciveGiverApp.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Reusables\InstructionAdder.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+  </ItemGroup>
+
 </Project>

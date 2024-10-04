@@ -1,0 +1,72 @@
+﻿@using MudBlazor
+@using ReciveGiverApp.Models.Models
+
+@inject HttpClient Http
+
+<MudStack Row="true">
+
+    @if (Checked)
+    {
+        <MudGrid>
+            <MudItem xs="3">
+                <MudText Typo="Typo.h6" Color="Color.Primary" Bold="true">@_instruction</MudText>
+            </MudItem>
+            <MudItem xs="2">
+                <MudIconButton Icon="@Icons.Material.Filled.HighlightOff" Color="Color.Error" aria-label="Usuń instrukcję" OnClick="OnIngredientUnselected" />
+            </MudItem>
+        </MudGrid>
+    }
+    else
+    {
+        <MudTextField @bind-Value="_instruction" Label="Podaj kolejną instrukcję " Required="true"></MudTextField>
+        <MudIconButton Icon="@Icons.Material.Filled.Check" Color="Color.Success" aria-label="Dodaj składnik" OnClick="OnIngredientSelected" />
+    }
+      
+</MudStack>
+
+
+@code
+{
+    [Parameter]
+    public EventCallback<string> OnAccepted { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnRejected { get; set; }
+
+    [Parameter]
+    public bool Checked { get; set; }
+
+    private string _instruction = "none";
+    public string ProvidedInstruction
+    {
+        get => _instruction;
+        set
+        {
+            if (_instruction != value)
+            {
+                _instruction = value;
+            }
+        }
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        Checked = false;
+        return base.OnInitializedAsync();
+    }
+
+    private void OnIngredientSelected()
+    {
+        OnAccepted.InvokeAsync(_instruction);  
+        Checked = !Checked;
+    }
+
+
+    private void OnIngredientUnselected()
+    {
+        _instruction = "none";
+        OnRejected.InvokeAsync();
+        Checked = !Checked;
+    }
+
+}
