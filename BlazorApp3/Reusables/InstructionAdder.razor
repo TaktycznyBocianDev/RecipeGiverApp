@@ -12,18 +12,17 @@
                 <MudText Typo="Typo.h6" Color="Color.Primary" Bold="true">@_instruction</MudText>
             </MudItem>
             <MudItem xs="2">
-                <MudIconButton Icon="@Icons.Material.Filled.HighlightOff" Color="Color.Error" aria-label="Usuń instrukcję" OnClick="OnIngredientUnselected" />
+                <MudIconButton Icon="@Icons.Material.Filled.HighlightOff" Color="Color.Error" aria-label="Usuń instrukcję" OnClick="OnIngredientUnselected"/>
             </MudItem>
-        </MudGrid>
+        </MudGrid> 
     }
     else
     {
-        <MudTextField @bind-Value="_instruction" Label="Podaj kolejną instrukcję " Required="true"></MudTextField>
-        <MudIconButton Icon="@Icons.Material.Filled.Check" Color="Color.Success" aria-label="Dodaj składnik" OnClick="OnIngredientSelected" />
+        <MudTextField @bind-Value="_instruction" Label="Podaj kolejną instrukcję -> nie przejmuj sie numeracją :)" Required="true"></MudTextField>
+        <MudIconButton Icon="@Icons.Material.Filled.Check" Color="Color.Success" aria-label="Dodaj składnik" OnClick="OnIngredientSelected" Disabled="@string.IsNullOrWhiteSpace(_instruction)" />
     }
-      
-</MudStack>
 
+</MudStack>
 
 @code
 {
@@ -36,7 +35,7 @@
     [Parameter]
     public bool Checked { get; set; }
 
-    private string _instruction = "none";
+    private string _instruction = "";
     public string ProvidedInstruction
     {
         get => _instruction;
@@ -49,6 +48,8 @@
         }
     }
 
+    private bool instructionModified;
+
     protected override Task OnInitializedAsync()
     {
         Checked = false;
@@ -57,10 +58,9 @@
 
     private void OnIngredientSelected()
     {
-        OnAccepted.InvokeAsync(_instruction);  
+        OnAccepted.InvokeAsync(_instruction);
         Checked = !Checked;
     }
-
 
     private void OnIngredientUnselected()
     {
@@ -68,5 +68,4 @@
         OnRejected.InvokeAsync();
         Checked = !Checked;
     }
-
 }
