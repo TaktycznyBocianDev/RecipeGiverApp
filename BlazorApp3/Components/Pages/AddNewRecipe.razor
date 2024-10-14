@@ -5,69 +5,149 @@
 @using RecipeGiverApp.Web.Reusables
 @using ReciveGiverApp.Models.Models
 
-@inject HttpClient Http 
+@inject HttpClient Http
 
 <MudGrid>
     <MudItem xs="10" sm="10">
-        <MudPaper Class="pa-4">
-            <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+    <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+        <MudItem xs="10" sm="10">
+            <MudPaper Class="pa-4">
+
                 <MudTextField T="string" Label="Nazwa Przepisu" Required="true" RequiredError="Przepis musi mieć nazwę!" />
                 <MudTextField T="string" Label="Kaloryczność" Required="true" RequiredError="Wprowadź kaloryczność danego przepisu" />
-            </MudForm>
-        </MudPaper>
-    </MudItem>
-    <MudSpacer>
 
-    </MudSpacer>
+            </MudPaper>
+        </MudItem>
 
-    <MudItem xs="10" sm="10">
-    <MudPaper Class="pa-4">
-        @foreach (IngredientSelector ingredientSelector in ingredientSelectors)
-        {
-            <MudItem xs="10" sm="10">
-                    <IngredientSelector Ingredients="ingredients" OnSelected="OnIngredientSelected" OnDeselected="OnIngredientDeselected"></IngredientSelector>
-            </MudItem>
-            <MudSpacer></MudSpacer>
-        }
-    </MudPaper>
-    </MudItem>
+        <MudSpacer></MudSpacer>
 
-    <MudItem xs="10" sm="10">
-        <MudPaper Class="pa-4">
-            @foreach (IngredientSelector ingredientSelector in ingredientSelectors)
-            {
-                <MudItem xs="10" sm="10">
-                    <InstructionAdder></InstructionAdder>
-                </MudItem>
-                <MudSpacer></MudSpacer>
-            }
-        </MudPaper>
-    </MudItem>
+        <MudItem xs="10" sm="10">
+            <MudPaper Class="pa-4">
+                <MudSelect T="Category" @bind-Value="_category" Label="Wybierz kategorię" Required="true">
+                    @foreach (Category categ in categories)
+                    {
+                        <MudSelectItem Value="categ">@categ.CategoryName</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudPaper>
+        </MudItem>
 
+        <MudSpacer></MudSpacer>
 
-    <MudSpacer>
+        <MudItem xs="10" sm="10">
+            <MudPaper Class="pa-4">
+                @foreach (IngredientSelector ingredientSelector in ingredientSelectors)
+                {
+                    <MudGrid>
+                        <MudItem xs="1" sm="1">
+                            <MudText>@(ingredientSelectors.IndexOf(ingredientSelector) + 1)</MudText>
+                        </MudItem>
+                        <MudItem xs="9" sm="9">
+                            <IngredientSelector Ingredients="ingredients" OnSelected="OnIngredientSelected" OnDeselected="OnIngredientDeselected"></IngredientSelector>
+                        </MudItem>
+                    </MudGrid>
+                    <MudSpacer></MudSpacer>
+                }
+            </MudPaper>
+        </MudItem>
 
-    </MudSpacer>
-    <MudItem xs="10" sm="10">
-        <MudPaper Class="pa-4">
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" DropShadow="false" OnClick="@(()=>form.ResetAsync())" Class="mx-2">Reset</MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Secondary" DropShadow="false" OnClick="@AddRecipe" Class="mx-2">Dodaj Przepis</MudButton>
-        </MudPaper>
+        <MudSpacer></MudSpacer>
+
+        <MudItem xs="10" sm="10">
+            <MudPaper Class="pa-4">
+                @foreach (InstructionAdder instructionAdder in instructionAdders)
+                {
+                    <MudGrid>
+                        <MudItem xs="1" sm="1">
+                            <MudText>@(instructionAdders.IndexOf(instructionAdder) + 1)</MudText>
+                        </MudItem>
+                        <MudItem xs="9" sm="9">
+                            <InstructionAdder OnAccepted="OnInstructionAdded" OnRejected="OnInstructionRemoved"></InstructionAdder>
+                        </MudItem>
+                    </MudGrid>
+                    <MudSpacer></MudSpacer>
+                }
+            </MudPaper>
+        </MudItem>
+
+        <MudSpacer></MudSpacer>
+
+        <MudItem xs="10" sm="10">
+            <MudPaper Class="pa-4">
+                <MudTextField @bind-Value="_fitPorada" Label="Wprowadź komentarz do tego dania :)" Required="true"></MudTextField>
+            </MudPaper>
+        </MudItem>
+
+        <MudSpacer></MudSpacer>
+
+        <MudItem xs="10" sm="10">
+            <MudPaper Class="pa-4">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" DropShadow="false" OnClick="@(()=>form.ResetAsync())" Class="mx-2">Reset</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Secondary" DropShadow="false" OnClick="@AddRecipe" Class="mx-2">Dodaj Przepis</MudButton>
+            </MudPaper>
+        </MudItem>
+    </MudForm>
+
     </MudItem>
 </MudGrid>
+
 
 @code {
     bool success;
     string[] errors = { };
     MudForm form;
 
+    List<Category> categories = new List<Category>();
+
+    private string _recipeName = "";
+    private string _calories = "";
+    private string _fitPorada = "";
+    private Category _category = new Category();
+
+
     List<IngredientSelector> ingredientSelectors = new List<IngredientSelector>();
     List<Ingredient> ingredients = new List<Ingredient>();
+
+    List<InstructionAdder> instructionAdders = new List<InstructionAdder>();
 
     protected override async Task OnInitializedAsync()
     {
         ingredients = await GetIngredientsAsync();
+        categories = await GetCategoriesAsync();
+        _category = categories.FirstOrDefault();
         ingredientSelectors.Add(new IngredientSelector());
+        instructionAdders.Add(new InstructionAdder());
+    }
+
+    private async Task<List<Category>> GetCategoriesAsync()
+    {
+        List<Category> newCategories;
+        try
+        {
+            var response = await Http.GetAsync("/Category/GetCategories");
+
+            if (response.IsSuccessStatusCode)
+            {
+                newCategories = await response.Content.ReadFromJsonAsync<List<Category>>();
+                return newCategories ?? new List<Category>();
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Console.WriteLine("Recipes not found");
+                return new List<Category>();
+            }
+            else
+            {
+                Console.WriteLine("An error occurred while fetching the recipes");
+                return new List<Category>();
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle any exceptions that occur during the request
+            Console.WriteLine($"An error occurred: {ex.Message}");
+            return new List<Category>();
+        }
     }
 
     private async Task<List<Ingredient>> GetIngredientsAsync()
@@ -108,12 +188,28 @@
 
     private void OnIngredientDeselected()
     {
-        ingredientSelectors.RemoveAt(ingredientSelectors.Count-1);
+        ingredientSelectors.RemoveAt(ingredientSelectors.Count - 1);
+    }
+
+    private void OnInstructionAdded()
+    {
+        instructionAdders.Add(new InstructionAdder());
+    }
+
+    private void OnInstructionRemoved()
+    {
+        instructionAdders.RemoveAt(instructionAdders.Count - 1);
     }
 
     private void AddRecipe()
     {
-        // Placeholder for functionality to add a recipe
+        Recipe newRecipe = new Recipe();
+
+        if (form.IsValid)
+        {
+
+        }
+
         Console.WriteLine("Recipe added!");
     }
 }

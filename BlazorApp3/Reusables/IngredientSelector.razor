@@ -4,7 +4,6 @@
 @inject HttpClient Http
 
 <MudStack Row="true">
-
     @if (Checked)
     {
         <MudGrid>
@@ -15,7 +14,7 @@
                 <MudText Typo="Typo.subtitle1" Color="Color.Secondary">@_selectedIngredient.Quantity</MudText>
             </MudItem>
             <MudItem xs="2">
-                <MudIconButton Icon="@Icons.Material.Filled.HighlightOff" Color="Color.Error" aria-label="Usuń składnik" OnClick="OnIngredientUnselected" />
+                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.HighlightOff" Color="Color.Error" aria-label="Usuń składnik" OnClick="OnIngredientUnselected">Usuń</MudButton>
             </MudItem>
         </MudGrid>
     }
@@ -27,12 +26,13 @@
                 <MudSelectItem Value="ingredient">@ingredient.IngredientName</MudSelectItem>
             }
         </MudSelect>
-        <MudTextField @bind-Value="SelectedIngredient.Quantity" Label="Podaj Wymaganą ilość danego składnika" Required="true"></MudTextField>
-        <MudIconButton Icon="@Icons.Material.Filled.Check" Color="Color.Success" aria-label="Dodaj składnik" OnClick="OnIngredientSelected" />
-    }
-      
-</MudStack>
 
+        <MudTextField @bind-Value="SelectedIngredient.Quantity" Label="Podaj Wymaganą ilość danego składnika" Required="true" />
+
+        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Check" Color="Color.Success" aria-label="Dodaj składnik" OnClick="OnIngredientSelected" Disabled="@(!IsFormValid())">Dodaj Składnik</MudButton>
+
+    }
+</MudStack>
 
 @code
 {
@@ -40,7 +40,7 @@
     public EventCallback<Ingredient> OnSelected { get; set; }
 
     [Parameter]
-    public EventCallback<Ingredient> OnDeselected { get; set; }
+    public EventCallback OnDeselected { get; set; }
 
     [Parameter]
     public List<Ingredient>? Ingredients { get; set; }
@@ -49,9 +49,17 @@
     public bool Checked { get; set; }
 
     private Ingredient _selectedIngredient = new Ingredient();
+
     public Ingredient SelectedIngredient
     {
-        get => _selectedIngredient;
+        get
+        {
+            if (_selectedIngredient == null || string.IsNullOrEmpty(_selectedIngredient.IngredientName))
+            {
+                return Ingredients.FirstOrDefault();
+            }
+            else return _selectedIngredient;
+        } 
         set
         {
             if (_selectedIngredient != value)
@@ -64,31 +72,27 @@
     protected override Task OnInitializedAsync()
     {
         Checked = false;
-        _selectedIngredient.IngredientName = "Wybierz Składnik";
+        _selectedIngredient = Ingredients.FirstOrDefault();
         return base.OnInitializedAsync();
     }
 
     private void OnIngredientSelected()
     {
         OnSelected.InvokeAsync(_selectedIngredient);  // Notify parent about the change
-        Checked = !Checked;
+        Checked = true;
     }
-
 
     private void OnIngredientUnselected()
     {
         _selectedIngredient = new Ingredient();
         _selectedIngredient.IngredientName = "Wybierz Składnik";
         OnDeselected.InvokeAsync();
-        Checked = !Checked;
+        Checked = false;
     }
 
-    /*
-     *
-     * Pani Wiesia Bielawska
-     * Pani Gosia - mama
-     * Sławomir Komisarczyk 601792800
-     * 
-    *
-    */
+    // Check if both the ingredient and quantity are valid for enabling the button
+    private bool IsFormValid()
+    {
+        return !string.IsNullOrEmpty(SelectedIngredient.IngredientName) && !string.IsNullOrWhiteSpace(SelectedIngredient.Quantity);
+    }
 }

@@ -12,14 +12,14 @@
                 <MudText Typo="Typo.h6" Color="Color.Primary" Bold="true">@_instruction</MudText>
             </MudItem>
             <MudItem xs="2">
-                <MudIconButton Icon="@Icons.Material.Filled.HighlightOff" Color="Color.Error" aria-label="Usuń instrukcję" OnClick="OnIngredientUnselected"/>
+                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.HighlightOff" Color="Color.Error" aria-label="Usuń instrukcję" OnClick="OnInstructionUnselected">Usuń</MudButton>
             </MudItem>
         </MudGrid> 
     }
     else
     {
         <MudTextField @bind-Value="_instruction" Label="Podaj kolejną instrukcję -> nie przejmuj sie numeracją :)" Required="true"></MudTextField>
-        <MudIconButton Icon="@Icons.Material.Filled.Check" Color="Color.Success" aria-label="Dodaj składnik" OnClick="OnIngredientSelected" Disabled="@string.IsNullOrWhiteSpace(_instruction)" />
+        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Check" Color="Color.Success" aria-label="Dodaj instrukcję" OnClick="OnInstructionSelected" Disabled="@string.IsNullOrWhiteSpace(_instruction)">Dodaj Instrukcję</MudButton>
     }
 
 </MudStack>
@@ -56,13 +56,13 @@
         return base.OnInitializedAsync();
     }
 
-    private void OnIngredientSelected()
+    private void OnInstructionSelected()
     {
         OnAccepted.InvokeAsync(_instruction);
         Checked = !Checked;
     }
 
-    private void OnIngredientUnselected()
+    private void OnInstructionUnselected()
     {
         _instruction = "none";
         OnRejected.InvokeAsync();
