@@ -7,18 +7,19 @@
 
     @if (Checked)
     {
+
         <MudGrid>
-            <MudItem xs="3">
+            <MudItem xs="8">
                 <MudText Typo="Typo.h6" Color="Color.Primary" Bold="true">@_instruction</MudText>
             </MudItem>
             <MudItem xs="2">
                 <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.HighlightOff" Color="Color.Error" aria-label="Usuń instrukcję" OnClick="OnInstructionUnselected">Usuń</MudButton>
             </MudItem>
-        </MudGrid> 
+        </MudGrid>
     }
     else
     {
-        <MudTextField @bind-Value="_instruction" Label="Podaj kolejną instrukcję -> nie przejmuj sie numeracją :)" Required="true"></MudTextField>
+        <MudTextField @bind-Value="_instruction" Label="Podaj kolejną instrukcję -> nie przejmuj sie numeracją :)"></MudTextField>
         <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Check" Color="Color.Success" aria-label="Dodaj instrukcję" OnClick="OnInstructionSelected" Disabled="@string.IsNullOrWhiteSpace(_instruction)">Dodaj Instrukcję</MudButton>
     }
 

@@ -4,6 +4,7 @@
 @inject HttpClient Http
 
 <MudStack Row="true">
+
     @if (Checked)
     {
         <MudGrid>
@@ -20,19 +21,45 @@
     }
     else
     {
-        <MudSelect T="Ingredient" @bind-Value="SelectedIngredient" Label="Wybierz składnik" Required="true">
-            @foreach (Ingredient ingredient in Ingredients)
-            {
-                <MudSelectItem Value="ingredient">@ingredient.IngredientName</MudSelectItem>
-            }
-        </MudSelect>
+        <MudGrid>
+            <!-- First Section: Select, Quantity, and Add Button in one line -->
+            <MudItem xs="12" sm="12">
+                <MudGrid>
+                    <MudItem xs="4" sm="4">
+                        <MudSelect T="Ingredient" @bind-Value="SelectedIngredient" Label="Wybierz składnik" Required="true">
+                            @foreach (Ingredient ingredient in Ingredients)
+                            {
+                                <MudSelectItem Value="ingredient">@ingredient.IngredientName</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="5" sm="5">
+                        <MudTextField @bind-Value="SelectedIngredient.Quantity" Label="Podaj Wymaganą ilość danego składnika" Required="true" />
+                    </MudItem>
+                    <MudItem xs="2" sm="2">
+                        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Check" Color="Color.Success" aria-label="Dodaj składnik" OnClick="OnIngredientSelected" Disabled="@(!IsFormValid())">Dodaj Składnik</MudButton>
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
 
-        <MudTextField @bind-Value="SelectedIngredient.Quantity" Label="Podaj Wymaganą ilość danego składnika" Required="true" />
+            <MudDivider></MudDivider>
 
-        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Check" Color="Color.Success" aria-label="Dodaj składnik" OnClick="OnIngredientSelected" Disabled="@(!IsFormValid())">Dodaj Składnik</MudButton>
-
+            <!-- Second Section: Custom Ingredient Text Field and Add Button in one line -->
+            <MudItem xs="12" sm="12">
+                <MudGrid>
+                    <MudItem xs="9" sm="9">
+                        <MudTextField @bind-Value="_customIngredient.IngredientName" Label="Brak składnika na liście? Dodaj go tutaj!"/>
+                    </MudItem>
+                    <MudItem xs="3" sm="3">
+                        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary" aria-label="Dodaj nowy składnik" OnClick="OnCustomIngredientAdded">Dodaj Nowy Składnik</MudButton>
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+        </MudGrid>
     }
+
 </MudStack>
+
 
 @code
 {
@@ -40,15 +67,20 @@
     public EventCallback<Ingredient> OnSelected { get; set; }
 
     [Parameter]
-    public EventCallback OnDeselected { get; set; }
+    public EventCallback<Ingredient> OnDeselected { get; set; }
 
     [Parameter]
     public List<Ingredient>? Ingredients { get; set; }
 
+
     [Parameter]
     public bool Checked { get; set; }
 
+    [Parameter]
+    public bool addCustom { get; set; }
+
     private Ingredient _selectedIngredient = new Ingredient();
+    public Ingredient _customIngredient = new Ingredient();
 
     public Ingredient SelectedIngredient
     {
@@ -59,7 +91,7 @@
                 return Ingredients.FirstOrDefault();
             }
             else return _selectedIngredient;
-        } 
+        }
         set
         {
             if (_selectedIngredient != value)
@@ -71,6 +103,7 @@
 
     protected override Task OnInitializedAsync()
     {
+        addCustom = false;
         Checked = false;
         _selectedIngredient = Ingredients.FirstOrDefault();
         return base.OnInitializedAsync();
@@ -78,7 +111,7 @@
 
     private void OnIngredientSelected()
     {
-        OnSelected.InvokeAsync(_selectedIngredient);  // Notify parent about the change
+        OnSelected.InvokeAsync(SelectedIngredient);  // Notify parent about the change
         Checked = true;
     }
 
@@ -86,9 +119,36 @@
     {
         _selectedIngredient = new Ingredient();
         _selectedIngredient.IngredientName = "Wybierz Składnik";
-        OnDeselected.InvokeAsync();
+        OnDeselected.InvokeAsync(SelectedIngredient);
         Checked = false;
     }
+
+    private async Task OnCustomIngredientAdded()
+    {
+        if (!string.IsNullOrWhiteSpace(_customIngredient.IngredientName))
+        {
+            try
+            {
+                // Post the new ingredient to the server
+                await Http.PostAsJsonAsync("/Ingredient/CreateIngredients", _customIngredient);
+
+                // Add the new ingredient to the local list
+                Ingredients.Add(_customIngredient);
+
+                // Set the newly added ingredient as the selected one
+                SelectedIngredient = _customIngredient;
+
+                // Clear the custom ingredient input for future entries
+                _customIngredient = new Ingredient();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
+        }
+    }
+
 
     // Check if both the ingredient and quantity are valid for enabling the button
     private bool IsFormValid()

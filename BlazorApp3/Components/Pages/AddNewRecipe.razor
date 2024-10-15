@@ -9,100 +9,107 @@
 
 <MudGrid>
     <MudItem xs="10" sm="10">
-    <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
-        <MudItem xs="10" sm="10">
-            <MudPaper Class="pa-4">
+        <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+            <MudItem xs="10" sm="10">
+                <MudPaper Class="pa-4">
 
-                <MudTextField T="string" Label="Nazwa Przepisu" Required="true" RequiredError="Przepis musi mieć nazwę!" />
-                <MudTextField T="string" Label="Kaloryczność" Required="true" RequiredError="Wprowadź kaloryczność danego przepisu" />
+                    <MudTextField T="string" Label="Nazwa Przepisu" Required="true" RequiredError="Przepis musi mieć nazwę!" />
+                    <MudTextField T="string" Label="Kaloryczność" Required="true" RequiredError="Wprowadź kaloryczność danego przepisu" />
 
-            </MudPaper>
-        </MudItem>
+                </MudPaper>
+            </MudItem>
 
-        <MudSpacer></MudSpacer>
+            <MudSpacer></MudSpacer>
 
-        <MudItem xs="10" sm="10">
-            <MudPaper Class="pa-4">
-                <MudSelect T="Category" @bind-Value="_category" Label="Wybierz kategorię" Required="true">
-                    @foreach (Category categ in categories)
+            <MudItem xs="10" sm="10">
+                <MudPaper Class="pa-4">
+                    <MudSelect T="Category" @bind-Value="_category" Label="Wybierz kategorię" Required="true">
+                        @foreach (Category categ in categories)
+                        {
+                            <MudSelectItem Value="categ">@categ.CategoryName</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudPaper>
+            </MudItem>
+
+            <MudSpacer></MudSpacer>
+
+            <MudItem xs="10" sm="10">
+                <MudPaper Class="pa-4">
+                    @foreach (IngredientSelector ingredientSelector in ingredientSelectors)
                     {
-                        <MudSelectItem Value="categ">@categ.CategoryName</MudSelectItem>
+                        <MudGrid>
+                            <MudItem xs="1" sm="1">
+                                <MudText>@(ingredientSelectors.IndexOf(ingredientSelector) + 1)</MudText>
+                            </MudItem>
+                            <MudItem xs="9" sm="9">
+                                <IngredientSelector Ingredients="ingredients" OnSelected="OnIngredientSelected" OnDeselected="OnIngredientDeselected"></IngredientSelector>
+                            </MudItem>
+                        </MudGrid>
+                        <MudSpacer></MudSpacer>
                     }
-                </MudSelect>
-            </MudPaper>
-        </MudItem>
+                </MudPaper>
+            </MudItem>
 
-        <MudSpacer></MudSpacer>
+            <MudItem xs="10" sm="10">
+                <MudDivider />
+            </MudItem>
 
-        <MudItem xs="10" sm="10">
-            <MudPaper Class="pa-4">
-                @foreach (IngredientSelector ingredientSelector in ingredientSelectors)
-                {
-                    <MudGrid>
-                        <MudItem xs="1" sm="1">
-                            <MudText>@(ingredientSelectors.IndexOf(ingredientSelector) + 1)</MudText>
-                        </MudItem>
-                        <MudItem xs="9" sm="9">
-                            <IngredientSelector Ingredients="ingredients" OnSelected="OnIngredientSelected" OnDeselected="OnIngredientDeselected"></IngredientSelector>
-                        </MudItem>
-                    </MudGrid>
-                    <MudSpacer></MudSpacer>
-                }
-            </MudPaper>
-        </MudItem>
+            <MudSpacer></MudSpacer>
 
-        <MudSpacer></MudSpacer>
+            <MudItem xs="10" sm="10">
+                <MudPaper Class="pa-4">
+                    @foreach (InstructionAdder instructionAdder in instructionAdders)
+                    {
+                        <MudGrid>
+                            <MudItem xs="1" sm="1">
+                                <MudText>@(instructionAdders.IndexOf(instructionAdder) + 1)</MudText>
+                            </MudItem>
+                            <MudItem xs="9" sm="9">
+                                <InstructionAdder OnAccepted="OnInstructionAdded" OnRejected="OnInstructionRemoved"></InstructionAdder>
+                            </MudItem>
+                        </MudGrid>
+                        <MudSpacer></MudSpacer>
+                    }
+                </MudPaper>
+            </MudItem>
 
-        <MudItem xs="10" sm="10">
-            <MudPaper Class="pa-4">
-                @foreach (InstructionAdder instructionAdder in instructionAdders)
-                {
-                    <MudGrid>
-                        <MudItem xs="1" sm="1">
-                            <MudText>@(instructionAdders.IndexOf(instructionAdder) + 1)</MudText>
-                        </MudItem>
-                        <MudItem xs="9" sm="9">
-                            <InstructionAdder OnAccepted="OnInstructionAdded" OnRejected="OnInstructionRemoved"></InstructionAdder>
-                        </MudItem>
-                    </MudGrid>
-                    <MudSpacer></MudSpacer>
-                }
-            </MudPaper>
-        </MudItem>
+            <MudSpacer></MudSpacer>
 
-        <MudSpacer></MudSpacer>
+            <MudItem xs="10" sm="10">
+                <MudPaper Class="pa-4">
+                    <MudTextField @bind-Value="_fitPorada" Label="Wprowadź komentarz do tego dania :)"></MudTextField>
+                </MudPaper>
+            </MudItem>
 
-        <MudItem xs="10" sm="10">
-            <MudPaper Class="pa-4">
-                <MudTextField @bind-Value="_fitPorada" Label="Wprowadź komentarz do tego dania :)" Required="true"></MudTextField>
-            </MudPaper>
-        </MudItem>
+            <MudSpacer></MudSpacer>
 
-        <MudSpacer></MudSpacer>
-
-        <MudItem xs="10" sm="10">
-            <MudPaper Class="pa-4">
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" DropShadow="false" OnClick="@(()=>form.ResetAsync())" Class="mx-2">Reset</MudButton>
-                <MudButton Variant="Variant.Filled" Color="Color.Secondary" DropShadow="false" OnClick="@AddRecipe" Class="mx-2">Dodaj Przepis</MudButton>
-            </MudPaper>
-        </MudItem>
-    </MudForm>
+            <MudItem xs="10" sm="10">
+                <MudPaper Class="pa-4">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" DropShadow="false" OnClick="@(()=>form.ResetAsync())" Class="mx-2">Reset</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Secondary" DropShadow="false" OnClick="@AddRecipe" Class="mx-2">Dodaj Przepis</MudButton>
+                </MudPaper>
+            </MudItem>
+        </MudForm>
 
     </MudItem>
 </MudGrid>
 
 
 @code {
-    bool success;
-    string[] errors = { };
-    MudForm form;
+        bool success;
+        string[] errors = { };
+        MudForm form;
 
-    List<Category> categories = new List<Category>();
+        List<Category> categories = new List<Category>();
 
     private string _recipeName = "";
     private string _calories = "";
     private string _fitPorada = "";
     private Category _category = new Category();
+    private List<Ingredient> _ingredientsForRecipe = new List<Ingredient>();
+    private string _instructionsForRecipe = "";
+
 
 
     List<IngredientSelector> ingredientSelectors = new List<IngredientSelector>();
@@ -181,13 +188,23 @@
         }
     }
 
-    private void OnIngredientSelected()
+    private void OnIngredientSelected(Ingredient ingredient)
     {
+        if (!_ingredientsForRecipe.Contains(ingredient))
+        {
+            _ingredientsForRecipe.Add(ingredient);
+
+        }
         ingredientSelectors.Add(new IngredientSelector());
     }
 
-    private void OnIngredientDeselected()
+    private void OnIngredientDeselected(Ingredient ingredient)
     {
+        if (_ingredientsForRecipe.Contains(ingredient))
+        {
+            _ingredientsForRecipe.Remove(ingredient);
+
+        }
         ingredientSelectors.RemoveAt(ingredientSelectors.Count - 1);
     }
 
@@ -209,7 +226,10 @@
         {
 
         }
-
+        foreach (Ingredient ingre in _ingredientsForRecipe)
+        {
+            Console.WriteLine(ingre.IngredientName);
+        }
         Console.WriteLine("Recipe added!");
     }
 }
